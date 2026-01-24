@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCategory } from '../services/categoryApi';
-import { NewCategory } from '../types';
-import { FaPlus, FaTimes, FaQuestion, FaHome, FaShoppingBag, FaUtensils, FaCar, FaFilm, FaBook, FaHeart, FaGamepad, FaWifi } from 'react-icons/fa'; // Example icons
-import DynamicFaIcon from './DynamicFaIcon';
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createCategory } from "../services/categoryApi";
+import { type NewCategory } from "../types";
+import { FaTimes } from "react-icons/fa"; // Example icons
+import DynamicFaIcon from "./DynamicFaIcon";
 
 interface AddCategoryFormProps {
   isOpen: boolean;
@@ -12,26 +12,50 @@ interface AddCategoryFormProps {
 
 // A small predefined list of popular icons for selection
 const predefinedIcons = [
-  'FaQuestion', 'FaHome', 'FaShoppingBag', 'FaUtensils', 'FaCar', 'FaFilm', 'FaBook', 'FaHeart', 'FaGamepad', 'FaWifi', 'FaLaptop', 'FaDumbbell', 'FaPlane', 'FaBus', 'FaTrain', 'FaSubway', 'FaTaxi'
+  "FaQuestion",
+  "FaHome",
+  "FaShoppingBag",
+  "FaUtensils",
+  "FaCar",
+  "FaFilm",
+  "FaBook",
+  "FaHeart",
+  "FaGamepad",
+  "FaWifi",
+  "FaLaptop",
+  "FaDumbbell",
+  "FaPlane",
+  "FaBus",
+  "FaTrain",
+  "FaSubway",
+  "FaTaxi",
 ];
 
-export default function AddCategoryForm({ isOpen, onClose }: AddCategoryFormProps) {
-  const [nom, setNom] = useState('');
-  const [icone, setIcone] = useState('FaQuestion'); // Default icon
+export default function AddCategoryForm({
+  isOpen,
+  onClose,
+}: AddCategoryFormProps) {
+  const [nom, setNom] = useState("");
+  const [icone, setIcone] = useState("FaQuestion"); // Default icon
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: (newCategory: NewCategory) => createCategory(newCategory),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      setNom('');
-      setIcone('FaQuestion');
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      setNom("");
+      setIcone("FaQuestion");
       onClose();
     },
-    onError: (error: any) => {
+    onError: (
+      error: Error & { response?: { data?: { message?: string } } },
+    ) => {
       console.error("Erreur lors de l'ajout de la catégorie:", error);
-      alert("Erreur lors de l'ajout de la catégorie: " + (error.response?.data?.message || error.message));
+      alert(
+        "Erreur lors de l'ajout de la catégorie: " +
+          (error.response?.data?.message || error.message),
+      );
     },
   });
 
@@ -47,13 +71,19 @@ export default function AddCategoryForm({ isOpen, onClose }: AddCategoryFormProp
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Ajouter une Nouvelle Catégorie</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <FaTimes size={20} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="categoryName" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="categoryName"
+              className="block text-sm font-medium text-gray-700"
+            >
               Nom de la catégorie
             </label>
             <input
@@ -66,7 +96,10 @@ export default function AddCategoryForm({ isOpen, onClose }: AddCategoryFormProp
             />
           </div>
           <div>
-            <label htmlFor="categoryIcon" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="categoryIcon"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Sélectionner une icône
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
@@ -75,13 +108,21 @@ export default function AddCategoryForm({ isOpen, onClose }: AddCategoryFormProp
                   type="button"
                   key={iconName}
                   onClick={() => setIcone(iconName)}
-                  className={`p-2 border rounded-md ${icone === iconName ? 'bg-blue-200 border-blue-500' : 'bg-gray-100 border-gray-300'} hover:bg-blue-100 transition-colors`}
+                  className={`p-2 border rounded-md ${icone === iconName ? "bg-blue-200 border-blue-500" : "bg-gray-100 border-gray-300"} hover:bg-blue-100 transition-colors`}
                 >
                   <DynamicFaIcon iconName={iconName} size={24} />
                 </button>
               ))}
             </div>
-            <p className="text-sm text-gray-500">Icône choisie: <DynamicFaIcon iconName={icone} size={18} className="inline-block align-middle" /> {icone}</p>
+            <p className="text-sm text-gray-500">
+              Icône choisie:{" "}
+              <DynamicFaIcon
+                iconName={icone}
+                size={18}
+                className="inline-block align-middle"
+              />{" "}
+              {icone}
+            </p>
           </div>
           <div className="flex justify-end">
             <button
@@ -89,7 +130,9 @@ export default function AddCategoryForm({ isOpen, onClose }: AddCategoryFormProp
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               disabled={mutation.isPending}
             >
-              {mutation.isPending ? 'Ajout en cours...' : 'Ajouter la catégorie'}
+              {mutation.isPending
+                ? "Ajout en cours..."
+                : "Ajouter la catégorie"}
             </button>
           </div>
           {mutation.isError && (

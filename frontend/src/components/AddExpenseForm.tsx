@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createExpense } from '../services/expenseApi';
-import { Category, NewExpense } from '../types';
-import { FaPlus, FaTimes } from 'react-icons/fa';
-import { format } from 'date-fns';
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createExpense } from "../services/expenseApi";
+import { type Category, type NewExpense } from "../types";
+import { FaTimes } from "react-icons/fa";
+import { format } from "date-fns";
 
 interface AddExpenseFormProps {
   isOpen: boolean;
@@ -12,28 +12,38 @@ interface AddExpenseFormProps {
   currentMonth: string; // YYYY-MM
 }
 
-export default function AddExpenseForm({ isOpen, onClose, categories, currentMonth }: AddExpenseFormProps) {
-  const [montant, setMontant] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [date, setDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
-  const [categorieId, setCategorieId] = useState<string>(''); // Storing as string from select
+export default function AddExpenseForm({
+  isOpen,
+  onClose,
+  categories,
+  currentMonth,
+}: AddExpenseFormProps) {
+  const [montant, setMontant] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
+  const [categorieId, setCategorieId] = useState<string>(""); // Storing as string from select
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: (newExpense: NewExpense) => createExpense(newExpense),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expenses', currentMonth] });
-      queryClient.invalidateQueries({ queryKey: ['summary', currentMonth] });
-      setMontant('');
-      setDescription('');
-      setDate(format(new Date(), 'yyyy-MM-dd'));
-      setCategorieId('');
+      queryClient.invalidateQueries({ queryKey: ["expenses", currentMonth] });
+      queryClient.invalidateQueries({ queryKey: ["summary", currentMonth] });
+      setMontant("");
+      setDescription("");
+      setDate(format(new Date(), "yyyy-MM-dd"));
+      setCategorieId("");
       onClose();
     },
-    onError: (error: any) => {
+    onError: (
+      error: Error & { response?: { data?: { message?: string } } },
+    ) => {
       console.error("Erreur lors de l'ajout de la dépense:", error);
-      alert("Erreur lors de l'ajout de la dépense: " + (error.response?.data?.message || error.message));
+      alert(
+        "Erreur lors de l'ajout de la dépense: " +
+          (error.response?.data?.message || error.message),
+      );
     },
   });
 
@@ -58,13 +68,19 @@ export default function AddExpenseForm({ isOpen, onClose, categories, currentMon
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Ajouter une Nouvelle Dépense</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <FaTimes size={20} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="montant" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="montant"
+              className="block text-sm font-medium text-gray-700"
+            >
               Montant (€)
             </label>
             <input
@@ -78,7 +94,10 @@ export default function AddExpenseForm({ isOpen, onClose, categories, currentMon
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
               Description (optionnel)
             </label>
             <input
@@ -90,7 +109,10 @@ export default function AddExpenseForm({ isOpen, onClose, categories, currentMon
             />
           </div>
           <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="date"
+              className="block text-sm font-medium text-gray-700"
+            >
               Date
             </label>
             <input
@@ -103,7 +125,10 @@ export default function AddExpenseForm({ isOpen, onClose, categories, currentMon
             />
           </div>
           <div>
-            <label htmlFor="categorie" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="categorie"
+              className="block text-sm font-medium text-gray-700"
+            >
               Catégorie
             </label>
             <select
@@ -121,7 +146,9 @@ export default function AddExpenseForm({ isOpen, onClose, categories, currentMon
               ))}
             </select>
             {categories.length === 0 && (
-                <p className="text-red-500 text-sm mt-1">Aucune catégorie disponible. Veuillez en ajouter une d'abord.</p>
+              <p className="text-red-500 text-sm mt-1">
+                Aucune catégorie disponible. Veuillez en ajouter une d'abord.
+              </p>
             )}
           </div>
           <div className="flex justify-end">
@@ -130,7 +157,7 @@ export default function AddExpenseForm({ isOpen, onClose, categories, currentMon
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               disabled={mutation.isPending}
             >
-              {mutation.isPending ? 'Ajout en cours...' : 'Ajouter la dépense'}
+              {mutation.isPending ? "Ajout en cours..." : "Ajouter la dépense"}
             </button>
           </div>
           {mutation.isError && (

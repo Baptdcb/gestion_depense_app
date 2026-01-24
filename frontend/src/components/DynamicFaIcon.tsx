@@ -1,5 +1,5 @@
-import React from 'react';
-import * as FaIcons from 'react-icons/fa'; // Import all Font Awesome icons
+import React from "react";
+import * as FaIcons from "react-icons/fa"; // Import all Font Awesome icons
 
 interface DynamicFaIconProps {
   iconName: string;
@@ -7,9 +7,13 @@ interface DynamicFaIconProps {
   className?: string;
 }
 
-const DynamicFaIcon: React.FC<DynamicFaIconProps> = ({ iconName, size = 20, className }) => {
+const DynamicFaIcon: React.FC<DynamicFaIconProps> = ({
+  iconName,
+  size = 20,
+  className,
+}) => {
   // Try to find the icon component by its name
-  const IconComponent = (FaIcons as any)[iconName];
+  const IconComponent = FaIcons[iconName as keyof typeof FaIcons];
 
   if (!IconComponent) {
     // Fallback to a default icon if the specified icon is not found

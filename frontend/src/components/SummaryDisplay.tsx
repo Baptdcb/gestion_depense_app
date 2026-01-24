@@ -1,5 +1,5 @@
-import { MonthlySummary } from '../types';
-import React from 'react';
+import { type MonthlySummary } from "../types";
+import React from "react";
 
 interface SummaryDisplayProps {
   summary: MonthlySummary[];
@@ -7,7 +7,11 @@ interface SummaryDisplayProps {
   total: number;
 }
 
-export default function SummaryDisplay({ summary, isLoading, total }: SummaryDisplayProps) {
+export default function SummaryDisplay({
+  summary,
+  isLoading,
+  total,
+}: SummaryDisplayProps) {
   if (isLoading) {
     return <div className="text-center py-4">Chargement du résumé...</div>;
   }
@@ -23,7 +27,10 @@ export default function SummaryDisplay({ summary, isLoading, total }: SummaryDis
   return (
     <div className="space-y-2">
       {summary.map((item, index) => (
-        <div key={item.categorie.id || index} className="flex justify-between items-center">
+        <div
+          key={item.categorie.id || index}
+          className="flex justify-between items-center"
+        >
           <span className="text-gray-700">{item.categorie.nom}</span>
           <span className="font-semibold">{item.total?.toFixed(2)} €</span>
         </div>
