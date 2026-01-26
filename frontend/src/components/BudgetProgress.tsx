@@ -10,7 +10,6 @@ const ProgressBar = ({
   label,
   spent,
   limit,
-  icon,
   categoryColor,
 }: {
   label: string;

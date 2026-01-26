@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createCategory, updateCategory } from "../services/categoryApi";
 import { type Category, type NewCategory } from "../types";
@@ -25,10 +25,26 @@ const colorPalette = [
 ];
 
 const predefinedIcons = [
-  "FaQuestion", "FaHome", "FaShoppingBag", "FaUtensils", "FaCar", 
-  "FaFilm", "FaBook", "FaHeart", "FaGamepad", "FaWifi", 
-  "FaLaptop", "FaDumbbell", "FaPlane", "FaBus", "FaTrain", 
-  "FaSubway", "FaTaxi", "FaGift", "FaCoffee", "FaMedkit"
+  "FaQuestion",
+  "FaHome",
+  "FaShoppingBag",
+  "FaUtensils",
+  "FaCar",
+  "FaFilm",
+  "FaBook",
+  "FaHeart",
+  "FaGamepad",
+  "FaWifi",
+  "FaLaptop",
+  "FaDumbbell",
+  "FaPlane",
+  "FaBus",
+  "FaTrain",
+  "FaSubway",
+  "FaTaxi",
+  "FaGift",
+  "FaCoffee",
+  "FaMedkit",
 ];
 
 export default function AddCategoryForm({
@@ -36,21 +52,23 @@ export default function AddCategoryForm({
   onClose,
   editingCategory,
 }: AddCategoryFormProps) {
-  const [nom, setNom] = useState("");
-  const [icone, setIcone] = useState("FaQuestion");
-  const [couleur, setCouleur] = useState(colorPalette[0]);
+  const [nom, setNom] = useState(editingCategory?.nom || "");
+  const [icone, setIcone] = useState(editingCategory?.icone || "FaQuestion");
+  const [couleur, setCouleur] = useState(
+    editingCategory?.couleur || colorPalette[0],
+  );
 
-  useEffect(() => {
-    if (editingCategory) {
-      setNom(editingCategory.nom);
-      setIcone(editingCategory.icone);
-      setCouleur(editingCategory.couleur);
-    } else {
-      setNom("");
-      setIcone("FaQuestion");
-      setCouleur(colorPalette[0]);
-    }
-  }, [editingCategory, isOpen]);
+  const [prevEditingCategory, setPrevEditingCategory] =
+    useState(editingCategory);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  if (editingCategory !== prevEditingCategory || isOpen !== prevIsOpen) {
+    setPrevEditingCategory(editingCategory);
+    setPrevIsOpen(isOpen);
+    setNom(editingCategory?.nom || "");
+    setIcone(editingCategory?.icone || "FaQuestion");
+    setCouleur(editingCategory?.couleur || colorPalette[0]);
+  }
 
   const queryClient = useQueryClient();
 
@@ -65,7 +83,9 @@ export default function AddCategoryForm({
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       onClose();
     },
-    onError: (error: any) => {
+    onError: (
+      error: Error & { response?: { data?: { message?: string } } },
+    ) => {
       console.error("Erreur catégorie:", error);
       alert("Erreur lors de l'enregistrement de la catégorie.");
     },
@@ -85,14 +105,19 @@ export default function AddCategoryForm({
           <h2 className="text-xl font-bold">
             {editingCategory ? "Modifier la Catégorie" : "Nouvelle Catégorie"}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <FaTimes size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nom
+            </label>
             <input
               type="text"
               className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
@@ -104,7 +129,9 @@ export default function AddCategoryForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Couleur</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Couleur
+            </label>
             <div className="flex flex-wrap gap-2">
               {colorPalette.map((c) => (
                 <button
@@ -114,20 +141,24 @@ export default function AddCategoryForm({
                   style={{ backgroundColor: c }}
                   onClick={() => setCouleur(c)}
                 >
-                  {couleur === c && <FaCheck size={12} className="text-gray-600" />}
+                  {couleur === c && (
+                    <FaCheck size={12} className="text-gray-600" />
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Icône</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Icône
+            </label>
             <div className="grid grid-cols-5 gap-2 max-h-32 overflow-y-auto p-2 border rounded-md">
               {predefinedIcons.map((icon) => (
                 <button
                   key={icon}
                   type="button"
-                  className={`p-2 rounded-md flex justify-center ${icone === icon ? 'bg-blue-100 ring-2 ring-blue-500' : 'hover:bg-gray-100'}`}
+                  className={`p-2 rounded-md flex justify-center ${icone === icon ? "bg-blue-100 ring-2 ring-blue-500" : "hover:bg-gray-100"}`}
                   onClick={() => setIcone(icon)}
                 >
                   <DynamicFaIcon iconName={icon} size={20} />
