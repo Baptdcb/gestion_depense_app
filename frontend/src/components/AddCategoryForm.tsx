@@ -99,7 +99,7 @@ export default function AddCategoryForm({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 overflow-y-auto h-full w-full z-[60] flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-40 overflow-y-auto h-full w-full  flex justify-center items-center p-4">
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">
