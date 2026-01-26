@@ -1,5 +1,4 @@
 import { type MonthlySummary } from "../types";
-import React from "react";
 
 interface SummaryDisplayProps {
   summary: MonthlySummary[];
@@ -31,8 +30,16 @@ export default function SummaryDisplay({
           key={item.categorie.id || index}
           className="flex justify-between items-center"
         >
-          <span className="text-gray-700">{item.categorie.nom}</span>
-          <span className="font-semibold">{item.total?.toFixed(2)} €</span>
+          <div className="flex items-center">
+            <span
+              className="w-3 h-3 rounded-full mr-2 border border-gray-100"
+              style={{ backgroundColor: item.categorie.couleur }}
+            />
+            <span className="text-gray-700">{item.categorie.nom}</span>
+          </div>
+          <span className="font-semibold">
+            {Number(item.total).toFixed(2)} €
+          </span>
         </div>
       ))}
       <hr className="my-2 border-gray-200" />

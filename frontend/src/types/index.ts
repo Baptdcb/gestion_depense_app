@@ -2,6 +2,7 @@ export interface Category {
   id: number;
   nom: string;
   icone: string;
+  couleur: string;
 }
 
 export interface Expense {
@@ -17,19 +18,44 @@ export interface Expense {
 
 export interface MonthlySummary {
   categorie: Category;
-  total: number | null;
+  total: number | string | null;
 }
 
-// For creating a new expense
 export interface NewExpense {
-    montant: number;
-    description?: string;
-    date: string; // ISO date string
-    categorieId: number;
+  montant: number;
+  description?: string;
+  date: string; // YYYY-MM-DD
+  categorieId: number;
 }
 
-// For creating a new category
+export interface CategoryBudget {
+  id: number;
+  monthlyBudgetId: number;
+  categoryId: number;
+  limit: string;
+  category: Category;
+}
+
+export interface Budget {
+  id: number;
+  month: string;
+  globalLimit: string;
+  categoryBudgets: CategoryBudget[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NewBudget {
+  month: string;
+  globalLimit: number;
+  categoryBudgets: {
+    categoryId: number;
+    limit: number;
+  }[];
+}
+
 export interface NewCategory {
-    nom: string;
-    icone: string;
+  nom: string;
+  icone: string;
+  couleur: string;
 }

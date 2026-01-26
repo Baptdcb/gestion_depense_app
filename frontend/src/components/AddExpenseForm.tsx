@@ -56,7 +56,7 @@ export default function AddExpenseForm({
     mutation.mutate({
       montant: parseFloat(montant),
       description: description || undefined,
-      date: new Date(date).toISOString(),
+      date: date,
       categorieId: parseInt(categorieId),
     });
   };

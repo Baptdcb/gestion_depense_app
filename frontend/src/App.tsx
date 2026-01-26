@@ -1,16 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from './services/queryClient';
-import HomePage from './pages/HomePage';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./services/queryClient";
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <div className="min-h-screen bg-gray-100 font-sans">
           <header className="bg-white shadow-sm">
             <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-              <h1 className="text-2xl font-bold text-gray-900">Ma Gestion de Dépenses</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Ma Gestion de Dépenses
+              </h1>
             </div>
           </header>
           <main>

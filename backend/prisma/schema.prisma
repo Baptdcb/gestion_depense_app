@@ -14,7 +14,9 @@ model Category {
   id       Int      @id @default(autoincrement())
   nom      String   @unique
   icone    String
+  couleur  String   @default("#E2E8F0")
   expenses Expense[]
+  categoryBudgets CategoryBudget[]
 }
 
 model Expense {
@@ -28,4 +30,24 @@ model Expense {
   createdAt   DateTime @default(now())
 
   @@index([mois])
+}
+
+model MonthlyBudget {
+  id          Int              @id @default(autoincrement())
+  month       String           @unique // YYYY-MM
+  globalLimit Decimal          @db.Decimal(10, 2)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  categoryBudgets CategoryBudget[]
+}
+
+model CategoryBudget {
+  id              Int           @id @default(autoincrement())
+  monthlyBudgetId Int
+  monthlyBudget   MonthlyBudget @relation(fields: [monthlyBudgetId], references: [id], onDelete: Cascade)
+  categoryId      Int
+  category        Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  limit           Decimal       @db.Decimal(10, 2)
+
+  @@unique([monthlyBudgetId, categoryId])
 }

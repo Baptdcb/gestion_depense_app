@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import categoryRoutes from "./routes/category.routes";
 import expenseRoutes from "./routes/expense.routes";
+import budgetRoutes from "./routes/budget.routes";
 import errorHandler from "./middlewares/errorHandler";
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 // API Routes
 app.use("/api/categories", categoryRoutes);
 app.use("/api/expenses", expenseRoutes);
+app.use("/api/budgets", budgetRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

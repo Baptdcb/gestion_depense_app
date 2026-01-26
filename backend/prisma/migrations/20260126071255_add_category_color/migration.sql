@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Category` ADD COLUMN `couleur` VARCHAR(191) NOT NULL DEFAULT '#E2E8F0';

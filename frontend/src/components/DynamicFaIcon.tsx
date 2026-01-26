@@ -13,7 +13,8 @@ const DynamicFaIcon: React.FC<DynamicFaIconProps> = ({
   className,
 }) => {
   // Try to find the icon component by its name
-  const IconComponent = FaIcons[iconName as keyof typeof FaIcons];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const IconComponent = (FaIcons as any)[iconName];
 
   if (!IconComponent) {
     // Fallback to a default icon if the specified icon is not found

@@ -1,145 +1,157 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createCategory } from "../services/categoryApi";
-import { type NewCategory } from "../types";
-import { FaTimes } from "react-icons/fa"; // Example icons
+import { createCategory, updateCategory } from "../services/categoryApi";
+import { type Category, type NewCategory } from "../types";
+import { FaTimes, FaCheck } from "react-icons/fa";
 import DynamicFaIcon from "./DynamicFaIcon";
 
 interface AddCategoryFormProps {
   isOpen: boolean;
   onClose: () => void;
+  editingCategory?: Category | null;
 }
 
-// A small predefined list of popular icons for selection
+const colorPalette = [
+  "#FEE2E2", // Rose
+  "#FFEDD5", // Orange
+  "#FEF3C7", // Jaune
+  "#DCFCE7", // Vert
+  "#DBEAFE", // Bleu
+  "#E0E7FF", // Indigo
+  "#EDE9FE", // Violet
+  "#FAE8FF", // Fuchsia
+  "#FCE7F3", // Pink
+  "#F3F4F6", // Gris
+];
+
 const predefinedIcons = [
-  "FaQuestion",
-  "FaHome",
-  "FaShoppingBag",
-  "FaUtensils",
-  "FaCar",
-  "FaFilm",
-  "FaBook",
-  "FaHeart",
-  "FaGamepad",
-  "FaWifi",
-  "FaLaptop",
-  "FaDumbbell",
-  "FaPlane",
-  "FaBus",
-  "FaTrain",
-  "FaSubway",
-  "FaTaxi",
+  "FaQuestion", "FaHome", "FaShoppingBag", "FaUtensils", "FaCar", 
+  "FaFilm", "FaBook", "FaHeart", "FaGamepad", "FaWifi", 
+  "FaLaptop", "FaDumbbell", "FaPlane", "FaBus", "FaTrain", 
+  "FaSubway", "FaTaxi", "FaGift", "FaCoffee", "FaMedkit"
 ];
 
 export default function AddCategoryForm({
   isOpen,
   onClose,
+  editingCategory,
 }: AddCategoryFormProps) {
   const [nom, setNom] = useState("");
-  const [icone, setIcone] = useState("FaQuestion"); // Default icon
+  const [icone, setIcone] = useState("FaQuestion");
+  const [couleur, setCouleur] = useState(colorPalette[0]);
+
+  useEffect(() => {
+    if (editingCategory) {
+      setNom(editingCategory.nom);
+      setIcone(editingCategory.icone);
+      setCouleur(editingCategory.couleur);
+    } else {
+      setNom("");
+      setIcone("FaQuestion");
+      setCouleur(colorPalette[0]);
+    }
+  }, [editingCategory, isOpen]);
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (newCategory: NewCategory) => createCategory(newCategory),
+    mutationFn: (data: NewCategory) => {
+      if (editingCategory) {
+        return updateCategory(editingCategory.id, data);
+      }
+      return createCategory(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
-      setNom("");
-      setIcone("FaQuestion");
       onClose();
     },
-    onError: (
-      error: Error & { response?: { data?: { message?: string } } },
-    ) => {
-      console.error("Erreur lors de l'ajout de la catégorie:", error);
-      alert(
-        "Erreur lors de l'ajout de la catégorie: " +
-          (error.response?.data?.message || error.message),
-      );
+    onError: (error: any) => {
+      console.error("Erreur catégorie:", error);
+      alert("Erreur lors de l'enregistrement de la catégorie.");
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ nom, icone });
+    mutation.mutate({ nom, icone, couleur });
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black bg-opacity-40 overflow-y-auto h-full w-full z-[60] flex justify-center items-center p-4">
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Ajouter une Nouvelle Catégorie</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
+          <h2 className="text-xl font-bold">
+            {editingCategory ? "Modifier la Catégorie" : "Nouvelle Catégorie"}
+          </h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <FaTimes size={20} />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
-              htmlFor="categoryName"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Nom de la catégorie
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
             <input
               type="text"
-              id="categoryName"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               required
+              placeholder="Ex: Loisirs, Santé..."
             />
           </div>
+
           <div>
-            <label
-              htmlFor="categoryIcon"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Sélectionner une icône
-            </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {predefinedIcons.map((iconName) => (
+            <label className="block text-sm font-medium text-gray-700 mb-2">Couleur</label>
+            <div className="flex flex-wrap gap-2">
+              {colorPalette.map((c) => (
                 <button
+                  key={c}
                   type="button"
-                  key={iconName}
-                  onClick={() => setIcone(iconName)}
-                  className={`p-2 border rounded-md ${icone === iconName ? "bg-blue-200 border-blue-500" : "bg-gray-100 border-gray-300"} hover:bg-blue-100 transition-colors`}
+                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center transition-transform hover:scale-110"
+                  style={{ backgroundColor: c }}
+                  onClick={() => setCouleur(c)}
                 >
-                  <DynamicFaIcon iconName={iconName} size={24} />
+                  {couleur === c && <FaCheck size={12} className="text-gray-600" />}
                 </button>
               ))}
             </div>
-            <p className="text-sm text-gray-500">
-              Icône choisie:{" "}
-              <DynamicFaIcon
-                iconName={icone}
-                size={18}
-                className="inline-block align-middle"
-              />{" "}
-              {icone}
-            </p>
           </div>
-          <div className="flex justify-end">
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Icône</label>
+            <div className="grid grid-cols-5 gap-2 max-h-32 overflow-y-auto p-2 border rounded-md">
+              {predefinedIcons.map((icon) => (
+                <button
+                  key={icon}
+                  type="button"
+                  className={`p-2 rounded-md flex justify-center ${icone === icon ? 'bg-blue-100 ring-2 ring-blue-500' : 'hover:bg-gray-100'}`}
+                  onClick={() => setIcone(icon)}
+                >
+                  <DynamicFaIcon iconName={icon} size={20} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              Annuler
+            </button>
             <button
               type="submit"
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               disabled={mutation.isPending}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
             >
-              {mutation.isPending
-                ? "Ajout en cours..."
-                : "Ajouter la catégorie"}
+              {mutation.isPending ? "Enregistrement..." : "Enregistrer"}
             </button>
           </div>
-          {mutation.isError && (
-            <p className="text-red-500 text-sm mt-2">
-              {mutation.error.message || "Une erreur est survenue."}
-            </p>
-          )}
         </form>
       </div>
     </div>
