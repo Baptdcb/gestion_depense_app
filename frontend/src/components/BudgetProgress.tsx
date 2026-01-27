@@ -68,7 +68,7 @@ export default function BudgetProgress({
 
   return (
     <div className="space-y-6">
-      <div className=" bg-linear-to-bl from-violet-950 to-fuchsia-950 p-4 rounded-lg border border-purple-950">
+      <div className=" p-4 rounded-lg border-2   border-linear-accent shadow-lg">
         <h3 className="text-lg font-bold text-purple-100 mb-2">
           Budget Global
         </h3>
@@ -77,7 +77,7 @@ export default function BudgetProgress({
           spent={totalSpent}
           limit={globalLimit}
         />
-        <div className="text-right text-xs text-blue-600 font-semibold">
+        <div className="text-right text-xs text-linear-accent font-semibold">
           {totalSpent > globalLimit
             ? `Dépassement de ${(totalSpent - globalLimit).toFixed(2)} €`
             : `Reste: ${(globalLimit - totalSpent).toFixed(2)} €`}
