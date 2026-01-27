@@ -68,8 +68,10 @@ export default function BudgetProgress({
 
   return (
     <div className="space-y-6">
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-        <h3 className="text-lg font-bold text-blue-900 mb-2">Budget Global</h3>
+      <div className=" bg-linear-to-bl from-violet-950 to-fuchsia-950 p-4 rounded-lg border border-purple-950">
+        <h3 className="text-lg font-bold text-purple-100 mb-2">
+          Budget Global
+        </h3>
         <ProgressBar
           label="Total Dépenses"
           spent={totalSpent}
