@@ -99,7 +99,7 @@ export default function BudgetModal({
       <div className="bg-linear-surface border border-white/10 p-8 rounded-3xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-xl font-bold">
-            Définir le Budget pour {currentMonth}
+            Définir le Budget pour {currentMonth}{" "}
           </h2>
           <button
             onClick={onClose}

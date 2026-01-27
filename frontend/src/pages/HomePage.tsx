@@ -14,6 +14,7 @@ import { FaPlus, FaChartPie } from "react-icons/fa";
 import SummaryDisplay from "../components/SummaryDisplay";
 import BudgetProgress from "../components/BudgetProgress";
 import BudgetModal from "../components/BudgetModal";
+import { fr } from "date-fns/locale/fr";
 
 export default function HomePage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -128,7 +129,7 @@ export default function HomePage() {
             <h2 className="text-lg font-medium text-white/90">
               Transactions{" "}
               <span className="text-sm text-linear-text-secondary ml-2">
-                {format(selectedMonth, "MMMM yyyy")}
+                {format(selectedMonth, "MMMM yyyy", { locale: fr })}
               </span>
             </h2>
           </div>
