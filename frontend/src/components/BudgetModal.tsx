@@ -95,9 +95,9 @@ export default function BudgetModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm overflow-y-auto h-full w-full z-100 flex justify-center items-center p-4">
+      <div className="bg-linear-surface border border-white/10 p-8 rounded-3xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200">
+        <div className="flex justify-between items-center mb-8">
           <h2 className="text-xl font-bold">
             Définir le Budget pour {currentMonth}
           </h2>
@@ -116,14 +116,14 @@ export default function BudgetModal({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className=" p-4 rounded-lg border-3 border-linear-accent ">
+            <label className="block text-sm font-medium text-white mb-1">
               Budget Global Cible (€)
             </label>
             <input
               type="number"
               step="0.01"
-              className="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-lg font-bold text-blue-600"
+              className="block w-full border border-white/10 rounded-md shadow-sm p-2 text-lg font-bold text-linear-accent"
               value={globalLimit}
               onChange={(e) => setGlobalLimit(e.target.value)}
               placeholder="Ex: 1500"
@@ -134,7 +134,7 @@ export default function BudgetModal({
                 className={
                   categoriesTotal > (parseFloat(globalLimit) || 0)
                     ? "text-red-600 font-bold"
-                    : "text-gray-500"
+                    : "text-gray-400 "
                 }
               >
                 Total des catégories: {categoriesTotal.toFixed(2)} €
@@ -152,7 +152,7 @@ export default function BudgetModal({
             </div>
           </div>
 
-          <div className="border-t pt-4">
+          <div className="border-t border-white/10 pt-4">
             <h3 className="text-md font-semibold mb-3">
               Ventilation par Catégorie
             </h3>
@@ -165,7 +165,7 @@ export default function BudgetModal({
                   <input
                     type="number"
                     step="0.01"
-                    className="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm"
+                    className="block w-full border border-white/10 rounded-md shadow-sm p-2 text-sm"
                     value={categoryLimits[cat.id] || ""}
                     onChange={(e) =>
                       handleCategoryLimitChange(cat.id, e.target.value)
@@ -177,20 +177,20 @@ export default function BudgetModal({
             </div>
           </div>
 
-          <div className="border-t pt-4 flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Annuler
-            </button>
+          <div className="flex flex-col gap-3 pt-6 border-t border-white/10">
             <button
               type="submit"
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              className="bento-button-primary w-full"
               disabled={mutation.isPending}
             >
               {mutation.isPending ? "Sauvegarde..." : "Enregistrer le Budget"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="bento-button-secondary w-full"
+            >
+              Annuler
             </button>
           </div>
         </form>
