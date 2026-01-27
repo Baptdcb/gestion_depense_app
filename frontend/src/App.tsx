@@ -10,7 +10,7 @@ function App() {
         <div className="min-h-screen bg-linear-bg font-sans text-white">
           <header className="border-b border-linear-border/50 sticky top-0 bg-linear-bg/80 backdrop-blur-xl z-50">
             <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-              <h1 className="text-xl font-medium tracking-tight bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
+              <h1 className="text-xl font-medium tracking-tight bg-linear-to-br from-white to-gray-400 bg-clip-text text-transparent">
                 CashFlow <span className="text-linear-accent font-bold">.</span>
               </h1>
               <div className="flex gap-4">
