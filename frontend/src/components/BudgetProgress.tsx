@@ -22,33 +22,36 @@ const ProgressBar = ({
   const isOver = spent > limit;
   const isWarning = !isOver && percentage > 80;
 
-  let colorClass = "bg-green-500";
-  if (isOver) colorClass = "bg-red-500";
-  else if (isWarning) colorClass = "bg-yellow-500";
+  let colorClass = "bg-linear-accent shadow-[0_0_10px_rgba(94,106,210,0.3)]";
+  if (isOver) colorClass = "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]";
+  else if (isWarning)
+    colorClass = "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]";
 
   return (
-    <div className="mb-4">
-      <div className="flex justify-between text-sm mb-1">
-        <div className="flex items-center space-x-2 truncate w-1/2">
+    <div className="mb-6 last:mb-0">
+      <div className="flex justify-between text-xs mb-2">
+        <div className="flex items-center space-x-2 truncate">
           {categoryColor && (
             <span
-              className="w-2 h-2 rounded-full shrink-0"
+              className="w-1.5 h-1.5 rounded-full shrink-0"
               style={{ backgroundColor: categoryColor }}
             />
           )}
-          <span className="font-medium text-gray-700 truncate">{label}</span>
-        </div>
-        <span className="text-gray-600">
-          <span className={isOver ? "text-red-600 font-bold" : ""}>
-            {spent.toFixed(2)}
+          <span className="font-medium text-white/70 truncate uppercase tracking-wider">
+            {label}
           </span>
-          <span className="text-gray-400 mx-1">/</span>
-          {limit.toFixed(2)} €
+        </div>
+        <span className="text-linear-text-secondary">
+          <span className={isOver ? "text-red-400 font-bold" : "text-white/90"}>
+            {spent.toFixed(0)}
+          </span>
+          <span className="mx-1 text-white/20">/</span>
+          {limit.toFixed(0)} <span className="text-[10px]">€</span>
         </span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2.5">
+      <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden border border-white/5">
         <div
-          className={`h-2.5 rounded-full ${colorClass}`}
+          className={`h-full rounded-full transition-all duration-1000 ease-out ${colorClass}`}
           style={{ width: `${limit > 0 ? percentage : spent > 0 ? 100 : 0}%` }}
         ></div>
       </div>
@@ -63,8 +66,11 @@ export default function BudgetProgress({
 }: BudgetProgressProps) {
   if (!budget) {
     return (
-      <div className="text-center p-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-        <p className="text-gray-500 mb-2">Pas de budget défini pour ce mois.</p>
+      <div className="flex flex-col items-center justify-center p-8 bg-white/2 rounded-2xl border border-dashed border-white/10 group-hover:border-white/20 transition-colors">
+        <p className="text-linear-text-secondary text-sm mb-4 text-center">
+          Aucun objectif de budget pour cette période.
+        </p>
+        <div className="text-4xl font-bold text-white/20">0.00 €</div>
       </div>
     );
   }

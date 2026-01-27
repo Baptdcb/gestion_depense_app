@@ -72,78 +72,127 @@ export default function HomePage() {
   };
 
   return (
-    <div>
-      <MonthSelector
-        selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
-      />
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-semibold text-white">Dashboard</h2>
+          <p className="text-linear-text-secondary">
+            Visualisez et gérez vos finances avec précision.
+          </p>
+        </div>
+        <MonthSelector
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+        />
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-4">
-          {/* Budget Section */}
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Suivi Budget</h2>
-              <button
-                onClick={() => setIsBudgetModalOpen(true)}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
-              >
-                <FaChartPie className="mr-1" /> Gérer
-              </button>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Budget Section - High Visibility Bento Box */}
+        <div className="md:col-span-4 bento-card relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <FaChartPie size={80} className="text-linear-accent" />
+          </div>
+          <div className="flex justify-between items-center mb-6 relative z-10">
+            <h2 className="text-lg font-medium text-white/90">Suivi Budget</h2>
+            <button
+              onClick={() => setIsBudgetModalOpen(true)}
+              className="glass-pill text-xs font-medium text-linear-accent hover:text-white"
+            >
+              Configurer
+            </button>
+          </div>
+          <div className="relative z-10">
             <BudgetProgress
               budget={budgetData?.budget ?? null}
               summary={summary || []}
               totalSpent={total}
             />
           </div>
-
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-lg font-semibold mb-4">
-              Dépenses de {format(selectedMonth, "MMMM yyyy")}
-            </h2>
-            {renderContent()}
-          </div>
         </div>
 
-        <div className="md:col-span-1">
-          <div className="bg-white rounded-lg shadow p-4 mb-4">
-            <h2 className="text-lg font-semibold mb-4">
-              Répartition des dépenses
+        {/* Répartition Section */}
+        <div className="md:col-span-8 bento-card">
+          <h2 className="text-lg font-medium mb-6 text-white/90">
+            Répartition par catégorie
+          </h2>
+          <SummaryDisplay
+            summary={summary || []}
+            isLoading={isLoadingSummary}
+            total={total}
+          />
+        </div>
+
+        {/* Expenses List Section - Main Content */}
+        <div className="md:col-span-8 bento-card min-h-100">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-medium text-white/90">
+              Transactions{" "}
+              <span className="text-sm text-linear-text-secondary ml-2">
+                {format(selectedMonth, "MMMM yyyy")}
+              </span>
             </h2>
-            <SummaryDisplay
-              summary={summary || []}
-              isLoading={isLoadingSummary}
-              total={total}
-            />
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-lg font-semibold mb-4">Actions</h2>
-            <div className="space-y-2">
+          <div className="overflow-hidden">{renderContent()}</div>
+        </div>
+
+        {/* Actions & Stats Card */}
+        <div className="md:col-span-4 flex flex-col gap-6">
+          <div className="bento-card">
+            <h2 className="text-lg font-medium mb-6 text-white/90">
+              Actions rapides
+            </h2>
+            <div className="grid grid-cols-1 gap-3">
               <button
                 onClick={() => setIsAddExpenseModalOpen(true)}
-                className="w-full inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full flex items-center justify-between p-4 rounded-xl bg-linear-accent/10 border border-linear-accent/20 text-linear-accent hover:bg-linear-accent/20 transition-all group"
                 disabled={
                   isLoadingCategories ||
                   categoriesError != null ||
                   (categories && categories.length === 0)
                 }
               >
-                <FaPlus className="mr-2" /> Ajouter Dépense
+                <div className="flex items-center">
+                  <div className="bg-linear-accent text-white p-2 rounded-lg mr-3 shadow-lg shadow-linear-accent/20">
+                    <FaPlus size={14} />
+                  </div>
+                  <span className="font-medium text-white/90">
+                    Nouvelle dépense
+                  </span>
+                </div>
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-1">
+                  →
+                </div>
               </button>
+
               <button
                 onClick={() => setIsAddCategoryModalOpen(true)}
-                className="w-full inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 transition-all group"
               >
-                <FaPlus className="mr-2" /> Ajouter Catégorie
+                <div className="flex items-center">
+                  <div className="bg-white/10 text-white p-2 rounded-lg mr-3">
+                    <FaPlus size={14} />
+                  </div>
+                  <span className="font-medium">Créer une catégorie</span>
+                </div>
               </button>
+
               <button
                 onClick={() => setIsManageCategoriesModalOpen(true)}
-                className="w-full inline-flex items-center justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full text-center py-3 text-sm text-linear-text-secondary hover:text-white transition-colors border-t border-white/5 mt-2"
               >
-                Gérer les Catégories
+                Gérer les catégories
               </button>
             </div>
+          </div>
+
+          <div className="bento-card grow bg-linear-to-br from-linear-surface to-linear-accent/5">
+            <h2 className="text-sm font-medium text-linear-text-secondary uppercase tracking-wider mb-2">
+              Conseil IA
+            </h2>
+            <p className="text-white/70 text-sm leading-relaxed italic">
+              "Vos dépenses en restauration ont augmenté de 12% ce mois-ci.
+              Pensez à cuisiner davantage pour optimiser votre budget."
+            </p>
           </div>
         </div>
       </div>

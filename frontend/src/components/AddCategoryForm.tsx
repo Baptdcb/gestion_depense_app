@@ -12,16 +12,16 @@ interface AddCategoryFormProps {
 }
 
 const colorPalette = [
-  "#FEE2E2", // Rose
-  "#FFEDD5", // Orange
-  "#FEF3C7", // Jaune
-  "#DCFCE7", // Vert
-  "#DBEAFE", // Bleu
-  "#E0E7FF", // Indigo
-  "#EDE9FE", // Violet
-  "#FAE8FF", // Fuchsia
-  "#FCE7F3", // Pink
-  "#F3F4F6", // Gris
+  "#5e6ad2", // Linear Blue
+  "#ff4444", // Red
+  "#ffbb33", // Orange
+  "#00C851", // Green
+  "#33b5e5", // Light Blue
+  "#aa66cc", // Purple
+  "#2E2E2E", // Dark Gray
+  "#ff8800", // Dark Orange
+  "#669900", // Dark Green
+  "#CC0000", // Dark Red
 ];
 
 const predefinedIcons = [
@@ -99,28 +99,28 @@ export default function AddCategoryForm({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 overflow-y-auto h-full w-full  flex justify-center items-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm overflow-y-auto h-full w-full z-100 flex justify-center items-center p-4">
+      <div className="bg-linear-surface border border-white/10 p-8 rounded-3xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-xl font-semibold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
             {editingCategory ? "Modifier la Catégorie" : "Nouvelle Catégorie"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/40 hover:text-white"
           >
-            <FaTimes size={20} />
+            <FaTimes size={18} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nom
+            <label className="block text-xs font-medium text-linear-text-secondary uppercase tracking-wider mb-2">
+              Nom de la catégorie
             </label>
             <input
               type="text"
-              className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bento-input w-full"
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               required
@@ -129,20 +129,24 @@ export default function AddCategoryForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Couleur
+            <label className="block text-xs font-medium text-linear-text-secondary uppercase tracking-wider mb-2">
+              Palette de couleur
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               {colorPalette.map((c) => (
                 <button
                   key={c}
                   type="button"
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center transition-transform hover:scale-110"
-                  style={{ backgroundColor: c }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 border-2"
+                  style={{
+                    backgroundColor: c,
+                    borderColor: couleur === c ? "white" : "transparent",
+                    boxShadow: couleur === c ? `0 0 12px ${c}88` : "none",
+                  }}
                   onClick={() => setCouleur(c)}
                 >
                   {couleur === c && (
-                    <FaCheck size={12} className="text-gray-600" />
+                    <FaCheck size={10} className="text-white drop-shadow-md" />
                   )}
                 </button>
               ))}
@@ -150,37 +154,45 @@ export default function AddCategoryForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Icône
+            <label className="block text-xs font-medium text-linear-text-secondary uppercase tracking-wider mb-2">
+              Icône représentative
             </label>
-            <div className="grid grid-cols-5 gap-2 max-h-32 overflow-y-auto p-2 border rounded-md">
+            <div className="grid grid-cols-5 gap-2 max-h-40 overflow-y-auto p-3 bg-white/2 border border-white/5 rounded-xl scrollbar-hide">
               {predefinedIcons.map((icon) => (
                 <button
                   key={icon}
                   type="button"
-                  className={`p-2 rounded-md flex justify-center ${icone === icon ? "bg-blue-100 ring-2 ring-blue-500" : "hover:bg-gray-100"}`}
+                  className={`p-3 rounded-xl flex justify-center transition-all ${
+                    icone === icon
+                      ? "bg-linear-accent text-white shadow-lg shadow-linear-accent/20"
+                      : "text-white/40 hover:bg-white/5 hover:text-white"
+                  }`}
                   onClick={() => setIcone(icon)}
                 >
-                  <DynamicFaIcon iconName={icon} size={20} />
+                  <DynamicFaIcon iconName={icon} size={18} />
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-            >
-              Annuler
-            </button>
+          <div className="flex flex-col gap-3 pt-6">
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+              className="bento-button-primary w-full"
             >
-              {mutation.isPending ? "Enregistrement..." : "Enregistrer"}
+              {mutation.isPending
+                ? "Enregistrement..."
+                : editingCategory
+                  ? "Mettre à jour"
+                  : "Créer la catégorie"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="bento-button-secondary w-full"
+            >
+              Annuler
             </button>
           </div>
         </form>
