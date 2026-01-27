@@ -187,13 +187,10 @@ export default function HomePage() {
           </div>
 
           <div className="bento-card grow bg-linear-to-br from-linear-surface to-linear-accent/5">
-            <h2 className="text-sm font-medium text-linear-text-secondary uppercase tracking-wider mb-2">
-              Conseil IA
+            <h2 className="text-sm font-medium text-linear-text-secondary  tracking-wider mb-2">
+              Télécharger le rapport mensuel
             </h2>
-            <p className="text-white/70 text-sm leading-relaxed italic">
-              "Vos dépenses en restauration ont augmenté de 12% ce mois-ci.
-              Pensez à cuisiner davantage pour optimiser votre budget."
-            </p>
+            <p className="text-white/70 text-sm leading-relaxed italic"></p>
           </div>
         </div>
       </div>
