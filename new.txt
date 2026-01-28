@@ -1,0 +1,4 @@
+- fond de l'app en noir 
+- actualisé automatiquement une fois que l'on modifie une catégorie
+- supprimer une catégorie utilié -> mettre a default : autres
+- config budget : ajouter un bouton par default (default parametrable dans les paramètres) 

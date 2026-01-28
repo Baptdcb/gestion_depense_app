@@ -110,9 +110,10 @@ export default function BudgetModal({
         </div>
 
         {isDefault && initialBudget && (
-          <div className="bg-blue-50 text-blue-700 p-3 rounded mb-4 text-sm">
-            Les valeurs ont été pré-remplies avec le budget du mois précédent.
-          </div>
+          <p className="text-sm text-yellow-400 mb-6">
+            Vous modifiez le budget par défaut. Ce budget sera utilisé pour les
+            mois sans budget spécifique.
+          </p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
