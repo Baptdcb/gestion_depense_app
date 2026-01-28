@@ -1,4 +1,4 @@
-- fond de l'app en noir 
 - actualisé automatiquement une fois que l'on modifie une catégorie
-- supprimer une catégorie utilié -> mettre a default : autres
+- supprimer une catégorie utilié -> mettre a default : une categorie "autres"
 - config budget : ajouter un bouton par default (default parametrable dans les paramètres) 
+- menu dans une navbar à gauche qui retrace les mois passés avec un rapport par catégories et le nombre d'argent en plus ou moins utilisé qui actualise une balance totale 
