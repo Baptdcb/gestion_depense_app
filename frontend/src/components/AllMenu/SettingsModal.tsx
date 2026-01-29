@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getSetting, updateSetting } from "../services/settingApi";
+import { getSetting, updateSetting } from "../../services/settingApi";
 import { FaTimes } from "react-icons/fa";
 
 interface SettingsModalProps {

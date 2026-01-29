@@ -2,8 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./services/queryClient";
 import HomePage from "./pages/HomePage";
-import Sidebar from "./components/Sidebar";
-import SettingsModal from "./components/SettingsModal";
+import Sidebar from "./components/MonthsHistory/Sidebar";
+import SettingsModal from "./components/AllMenu/SettingsModal";
 import { useState } from "react";
 import { FaCog } from "react-icons/fa";
 

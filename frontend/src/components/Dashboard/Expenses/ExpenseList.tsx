@@ -1,7 +1,7 @@
-import { type Expense } from "../types";
+import { type Expense } from "../../../types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import DynamicFaIcon from "./DynamicFaIcon"; // Import DynamicFaIcon
+import DynamicFaIcon from "../../utils/DynamicFaIcon"; // Import DynamicFaIcon
 
 interface ExpenseListItemProps {
   expense: Expense;

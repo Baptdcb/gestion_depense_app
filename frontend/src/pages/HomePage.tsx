@@ -2,18 +2,18 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 
-import MonthSelector from "../components/MonthSelector";
-import ExpenseList from "../components/ExpenseList";
-import AddCategoryForm from "../components/AddCategoryForm";
-import ManageCategoriesModal from "../components/ManageCategoriesModal";
-import AddExpenseForm from "../components/AddExpenseForm"; // Import AddExpenseForm
+import MonthSelector from "../components/utils/MonthSelector";
+import ExpenseList from "../components/Dashboard/Expenses/ExpenseList";
+import AddCategoryForm from "../components/Dashboard/AddActions/AddCategoryForm";
+import ManageCategoriesModal from "../components/Dashboard/AddActions/ManageCategoriesModal";
+import AddExpenseForm from "../components/Dashboard/AddActions/AddExpenseForm"; // Import AddExpenseForm
 import { getExpenses, getMonthlySummary } from "../services/expenseApi";
 import { getCategories } from "../services/categoryApi";
 import { getBudget } from "../services/budgetApi";
 import { FaPlus, FaChartPie } from "react-icons/fa";
-import SummaryDisplay from "../components/SummaryDisplay";
-import BudgetProgress from "../components/BudgetProgress";
-import BudgetModal from "../components/BudgetModal";
+import SummaryDisplay from "../components/Dashboard/Summary/SummaryDisplay";
+import BudgetProgress from "../components/Dashboard/Budget/BudgetProgress";
+import BudgetModal from "../components/Dashboard/Budget/BudgetModal";
 import { fr } from "date-fns/locale/fr";
 
 interface HomePageProps {

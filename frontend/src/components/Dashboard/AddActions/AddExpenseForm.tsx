@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createExpense } from "../services/expenseApi";
-import { type Category, type NewExpense } from "../types";
+import { createExpense } from "../../../services/expenseApi";
+import { type Category, type NewExpense } from "../../../types";
 import { FaTimes } from "react-icons/fa";
 import { format } from "date-fns";
 

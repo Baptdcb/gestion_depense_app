@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getHistory } from "../services/reportApi";
+import { getHistory } from "../../services/reportApi";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { useState } from "react";
@@ -49,7 +49,7 @@ export default function Sidebar({ onSelectMonth }: SidebarProps) {
           </div>
           <div>
             <p className="text-xs text-white/40 font-medium uppercase tracking-wider">
-              Balance Totale
+              Balance Totalex
             </p>
             <span
               className={`text-xl font-mono font-bold ${lastBalance >= 0 ? "text-white" : "text-red-400"}`}

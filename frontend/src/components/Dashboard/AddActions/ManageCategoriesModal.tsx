@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { getCategories, deleteCategory } from "../services/categoryApi";
-import { type Category } from "../types";
+import { getCategories, deleteCategory } from "../../../services/categoryApi";
+import { type Category } from "../../../types";
 import { FaTimes, FaTrash, FaEdit, FaPlus } from "react-icons/fa";
-import DynamicFaIcon from "./DynamicFaIcon";
+import DynamicFaIcon from "../../utils/DynamicFaIcon";
 import AddCategoryForm from "./AddCategoryForm";
 
 interface ManageCategoriesModalProps {

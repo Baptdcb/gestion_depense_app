@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createCategory, updateCategory } from "../services/categoryApi";
-import { type Category, type NewCategory } from "../types";
+import { createCategory, updateCategory } from "../../../services/categoryApi";
+import { type Category, type NewCategory } from "../../../types";
 import { FaTimes, FaCheck } from "react-icons/fa";
-import DynamicFaIcon from "./DynamicFaIcon";
+import DynamicFaIcon from "../../utils/DynamicFaIcon";
 
 interface AddCategoryFormProps {
   isOpen: boolean;

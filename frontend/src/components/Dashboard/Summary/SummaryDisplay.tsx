@@ -1,4 +1,4 @@
-import { type MonthlySummary } from "../types";
+import { type MonthlySummary } from "../../../types";
 
 interface SummaryDisplayProps {
   summary: MonthlySummary[];

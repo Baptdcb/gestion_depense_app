@@ -1,5 +1,5 @@
-import { type Budget, type MonthlySummary } from "../types";
-import ProgressBar from "./ProgressBar";
+import { type Budget, type MonthlySummary } from "../../../types";
+import ProgressBar from "../../utils/ProgressBar";
 
 interface BudgetProgressProps {
   budget: Budget | null;

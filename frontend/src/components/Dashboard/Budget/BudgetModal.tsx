@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { saveBudget } from "../services/budgetApi";
-import { getSetting } from "../services/settingApi";
-import { type Category, type Budget } from "../types";
+import { saveBudget } from "../../../services/budgetApi";
+import { getSetting } from "../../../services/settingApi";
+import { type Category, type Budget } from "../../../types";
 import { FaTimes } from "react-icons/fa";
 
 interface BudgetModalProps {
