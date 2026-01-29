@@ -15,15 +15,20 @@ import SummaryDisplay from "../components/Dashboard/Summary/SummaryDisplay";
 import BudgetProgress from "../components/Dashboard/Budget/BudgetProgress";
 import BudgetModal from "../components/Dashboard/Budget/BudgetModal";
 import { fr } from "date-fns/locale/fr";
+import { TbLayoutSidebar, TbLayoutSidebarFilled } from "react-icons/tb";
 
 interface HomePageProps {
   selectedMonth: Date;
   setSelectedMonth: (date: Date) => void;
+  isSidebarOpen: boolean;
+  toggleSidebar: () => void;
 }
 
 export default function HomePage({
   selectedMonth,
   setSelectedMonth,
+  isSidebarOpen,
+  toggleSidebar,
 }: HomePageProps) {
   // const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
@@ -83,8 +88,21 @@ export default function HomePage({
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-semibold text-white">Dashboard</h2>
+        <div className="w-full">
+          <div className="flex items-center gap-4 mb-2">
+            <button
+              onClick={toggleSidebar}
+              className="p-2 text-linear-accent hover:bg-white/10 rounded-lg transition-colors"
+              aria-label={isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            >
+              {isSidebarOpen ? (
+                <TbLayoutSidebarFilled size={28} />
+              ) : (
+                <TbLayoutSidebar size={28} />
+              )}
+            </button>
+            <h2 className="text-3xl font-semibold text-white">Dashboard</h2>
+          </div>
           <p className="text-linear-text-secondary">
             Visualisez et gérez vos finances avec précision.
           </p>
