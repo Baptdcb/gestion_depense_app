@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { saveBudget } from "../services/budgetApi";
+import { getSetting } from "../services/settingApi";
 import { type Category, type Budget } from "../types";
 import { FaTimes } from "react-icons/fa";
 
@@ -70,6 +71,15 @@ export default function BudgetModal({
     setCategoryLimits((prev) => ({ ...prev, [categoryId]: value }));
   };
 
+  const loadDefault = async () => {
+    try {
+      const def = await getSetting("defaultBudget");
+      if (def) setGlobalLimit(def);
+    } catch (e) {
+      console.error("Failed to load default setting", e);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -118,9 +128,18 @@ export default function BudgetModal({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className=" p-4 rounded-lg border-3 border-linear-accent ">
-            <label className="block text-sm font-medium text-white mb-1">
-              Budget Global Cible (€)
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-sm font-medium text-white">
+                Budget Global Cible (€)
+              </label>
+              <button
+                type="button"
+                onClick={loadDefault}
+                className="text-xs text-linear-accent hover:text-white transition-colors"
+              >
+                Utiliser Défaut
+              </button>
+            </div>
             <input
               type="number"
               step="0.01"

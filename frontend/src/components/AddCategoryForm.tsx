@@ -81,6 +81,8 @@ export default function AddCategoryForm({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      queryClient.invalidateQueries({ queryKey: ["summary"] });
       onClose();
     },
     onError: (

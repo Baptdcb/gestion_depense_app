@@ -16,8 +16,16 @@ import BudgetProgress from "../components/BudgetProgress";
 import BudgetModal from "../components/BudgetModal";
 import { fr } from "date-fns/locale/fr";
 
-export default function HomePage() {
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
+interface HomePageProps {
+  selectedMonth: Date;
+  setSelectedMonth: (date: Date) => void;
+}
+
+export default function HomePage({
+  selectedMonth,
+  setSelectedMonth,
+}: HomePageProps) {
+  // const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
   const [isManageCategoriesModalOpen, setIsManageCategoriesModalOpen] =
     useState(false);

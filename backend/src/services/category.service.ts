@@ -30,8 +30,37 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (id: number): Promise<Category> => {
-  // First, check if there are expenses for this category or handle cascade if needed
-  // Prisma handles this based on schema.
+  const expensesCount = await prisma.expense.count({
+    where: { categorieId: id },
+  });
+
+  if (expensesCount > 0) {
+    let otherCategory = await prisma.category.findUnique({
+      where: { nom: "Autres" },
+    });
+
+    if (!otherCategory) {
+      otherCategory = await prisma.category.create({
+        data: {
+          nom: "Autres",
+          icone: "FaQuestion",
+          couleur: "#94a3b8",
+        },
+      });
+    }
+
+    if (otherCategory.id === id) {
+      throw new Error(
+        "Impossible de supprimer la catégorie 'Autres' car elle contient des dépenses.",
+      );
+    }
+
+    await prisma.expense.updateMany({
+      where: { categorieId: id },
+      data: { categorieId: otherCategory.id },
+    });
+  }
+
   return prisma.category.delete({
     where: { id },
   });

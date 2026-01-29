@@ -51,3 +51,8 @@ model CategoryBudget {
 
   @@unique([monthlyBudgetId, categoryId])
 }
+
+model Setting {
+  key   String @id
+  value String
+}
