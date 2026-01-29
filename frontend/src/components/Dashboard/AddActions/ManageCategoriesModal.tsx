@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { getCategories, deleteCategory } from "../../../services/categoryApi";
+import { useQuery } from "@tanstack/react-query";
+import { getCategories } from "../../../services/categoryApi";
 import { type Category } from "../../../types";
 import { FaTimes, FaTrash, FaEdit, FaPlus } from "react-icons/fa";
 import DynamicFaIcon from "../../utils/DynamicFaIcon";
 import AddCategoryForm from "./AddCategoryForm";
+import { useDeleteCategory } from "../../../hooks/useCategories";
+import { toast } from "react-toastify";
 
 interface ManageCategoriesModalProps {
   isOpen: boolean;
@@ -17,7 +19,6 @@ export default function ManageCategoriesModal({
 }: ManageCategoriesModalProps) {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ["categories"],
@@ -25,20 +26,7 @@ export default function ManageCategoriesModal({
     enabled: isOpen,
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => deleteCategory(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      queryClient.invalidateQueries({ queryKey: ["summary"] });
-    },
-    onError: (error) => {
-      console.error("Erreur suppression catégorie:", error);
-      alert(
-        "Erreur lors de la suppression. Vérifiez si cette catégorie est utilisée par des dépenses.",
-      );
-    },
-  });
+  const deleteCategory = useDeleteCategory();
 
   const handleDelete = (id: number, name: string) => {
     if (
@@ -46,7 +34,18 @@ export default function ManageCategoriesModal({
         `Êtes-vous sûr de vouloir supprimer la catégorie "${name}" ?`,
       )
     ) {
-      deleteMutation.mutate(id);
+      deleteCategory.mutate(id, {
+        onSuccess: () => {
+          toast.success(`Catégorie "${name}" supprimée avec succès.`);
+        },
+        onError: () => {
+          toast.error(
+            name === "Autres"
+              ? `La catégorie ${name} ne peut pas être supprimée.`
+              : `Erreur lors de la suppression de la catégorie. Vérifiez si ${name} est utilisée par des dépenses.`,
+          );
+        },
+      });
     }
   };
 
@@ -109,9 +108,6 @@ export default function ManageCategoriesModal({
                     </div>
                     <div>
                       <h3 className="font-medium text-white">{cat.nom}</h3>
-                      <span className="text-[10px] uppercase tracking-widest text-white/30">
-                        ID: {cat.id}
-                      </span>
                     </div>
                   </div>
                   <div className="flex space-x-2">

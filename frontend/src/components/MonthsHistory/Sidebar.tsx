@@ -31,11 +31,11 @@ export default function Sidebar({ onSelectMonth }: SidebarProps) {
     );
 
   return (
-    <aside className="w-80 bg-black/20 backdrop-blur-md border-r border-white/10 flex flex-col h-screen sticky top-0">
-      <div className="p-6 border-b border-white/5 bg-linear-bg/50">
+    <aside className="w-80 bg-linear-surface backdrop-blur-md border-r border-white/10 flex flex-col h-screen sticky top-0">
+      <div className="p-6 border-b border-white/5 bg-linear-surface/20">
         <h2 className="text-xl font-bold text-white mb-2 leading-tight">
-          Historique &<br />
-          Balance
+          Historique & Balance
+          <br />
         </h2>
         <TotaleBalance history={history} />
       </div>

@@ -6,6 +6,7 @@ import SettingsModal from "./components/AllMenu/SettingsModal";
 import Sidebar from "./components/MonthsHistory/Sidebar";
 import { useState } from "react";
 import { FaCog } from "react-icons/fa";
+import { Bounce, ToastContainer } from "react-toastify";
 
 function App() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -17,7 +18,7 @@ function App() {
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <div className="flex h-screen bg-linear-bg font-sans text-white overflow-hidden">
           <div
-            className={`${isSidebarOpen ? "w-80" : "w-0"} transition-[width] duration-300 ease-in-out overflow-hidden flex-shrink-0 border-r border-white/10`}
+            className={`${isSidebarOpen ? "w-80" : "w-0"} transition-[width] duration-300 ease-in-out overflow-hidden border-r border-white/10`}
           >
             <Sidebar onSelectMonth={setSelectedMonth} />
           </div>
@@ -61,6 +62,19 @@ function App() {
             </main>
           </div>
         </div>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          transition={Bounce}
+        />
       </Router>
     </QueryClientProvider>
   );
