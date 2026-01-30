@@ -17,6 +17,7 @@ model Category {
   couleur  String   @default("#E2E8F0")
   expenses Expense[]
   categoryBudgets CategoryBudget[]
+  recurringExpenses RecurringExpense[]
 }
 
 model Expense {
@@ -27,9 +28,24 @@ model Expense {
   mois        String   // Format: YYYY-MM
   categorie   Category @relation(fields: [categorieId], references: [id])
   categorieId Int
+  recurringExpense   RecurringExpense? @relation(fields: [recurringExpenseId], references: [id])
+  recurringExpenseId Int?
   createdAt   DateTime @default(now())
 
   @@index([mois])
+  @@index([recurringExpenseId])
+}
+
+model RecurringExpense {
+  id          Int      @id @default(autoincrement())
+  montant     Decimal  @db.Decimal(10, 2)
+  description String?
+  categorie   Category @relation(fields: [categorieId], references: [id])
+  categorieId Int
+  active      Boolean  @default(true)
+  startDate   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  expenses    Expense[]
 }
 
 model MonthlyBudget {

@@ -1,13 +1,21 @@
 import { type Expense } from "../../../types";
+import { type Category } from "../../../types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import DynamicFaIcon from "../../utils/DynamicFaIcon"; // Import DynamicFaIcon
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteExpense } from "../../../services/expenseApi";
+import { useState } from "react";
+import EditExpenseModal from "./EditExpenseModal";
 
 interface ExpenseListItemProps {
   expense: Expense;
+  onEdit: (expense: Expense) => void;
+  onDelete: (expense: Expense) => void;
 }
 
-function ExpenseListItem({ expense }: ExpenseListItemProps) {
+function ExpenseListItem({ expense, onEdit, onDelete }: ExpenseListItemProps) {
   return (
     <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/2 hover:bg-white/5 hover:border-white/10 transition-all group mb-3">
       <div className="flex items-center space-x-4">
@@ -37,6 +45,14 @@ function ExpenseListItem({ expense }: ExpenseListItemProps) {
                 </span>
               </>
             )}
+            {expense.recurringExpenseId && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-white/10" />
+                <span className="px-2 py-0.5 rounded-full bg-linear-accent/10 border border-linear-accent/20 text-[10px] uppercase tracking-wider text-linear-accent">
+                  Récurrente
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -47,6 +63,22 @@ function ExpenseListItem({ expense }: ExpenseListItemProps) {
           })}{" "}
           <span className="text-xs text-linear-text-secondary ml-0.5">€</span>
         </p>
+        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => onEdit(expense)}
+            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"
+            title="Modifier"
+          >
+            <FaEdit size={12} />
+          </button>
+          <button
+            onClick={() => onDelete(expense)}
+            className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
+            title="Supprimer"
+          >
+            <FaTrash size={12} />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -54,9 +86,44 @@ function ExpenseListItem({ expense }: ExpenseListItemProps) {
 
 interface ExpenseListProps {
   expenses: Expense[];
+  categories: Category[];
+  currentPeriodKey: string;
+  viewMode: "month" | "year";
 }
 
-export default function ExpenseList({ expenses }: ExpenseListProps) {
+export default function ExpenseList({
+  expenses,
+  categories,
+  currentPeriodKey,
+  viewMode,
+}: ExpenseListProps) {
+  const queryClient = useQueryClient();
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteExpense,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expenses", currentPeriodKey, viewMode],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["summary", currentPeriodKey, viewMode],
+      });
+    },
+  });
+
+  const handleEdit = (expense: Expense) => {
+    setEditingExpense(expense);
+    setIsEditOpen(true);
+  };
+
+  const handleDelete = (expense: Expense) => {
+    if (window.confirm("Supprimer cette dépense ?")) {
+      deleteMutation.mutate(expense.id);
+    }
+  };
+
   if (expenses.length === 0) {
     return (
       <div className="text-center text-gray-500 py-8">
@@ -66,10 +133,25 @@ export default function ExpenseList({ expenses }: ExpenseListProps) {
   }
 
   return (
-    <div className="space-y-2">
-      {expenses.map((expense) => (
-        <ExpenseListItem key={expense.id} expense={expense} />
-      ))}
-    </div>
+    <>
+      <div className="space-y-2">
+        {expenses.map((expense) => (
+          <ExpenseListItem
+            key={expense.id}
+            expense={expense}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ))}
+      </div>
+      <EditExpenseModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        expense={editingExpense}
+        categories={categories}
+        currentPeriodKey={currentPeriodKey}
+        viewMode={viewMode}
+      />
+    </>
   );
 }

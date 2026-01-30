@@ -10,6 +10,8 @@ import { Bounce, ToastContainer } from "react-toastify";
 
 function App() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [viewMode, setViewMode] = useState<"month" | "year">("month");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -20,7 +22,12 @@ function App() {
           <div
             className={`${isSidebarOpen ? "w-80" : "w-0"} transition-[width] duration-300 ease-in-out overflow-hidden border-r border-white/10`}
           >
-            <Sidebar onSelectMonth={setSelectedMonth} />
+            <Sidebar
+              onSelectMonth={setSelectedMonth}
+              onSelectYear={setSelectedYear}
+              viewMode={viewMode}
+              onChangeViewMode={setViewMode}
+            />
           </div>
           <div className="flex-1 flex flex-col h-screen overflow-hidden relative transition-all duration-300">
             <header className="border-b border-linear-border/50 sticky top-0 bg-linear-bg/80 backdrop-blur-xl z-50">
@@ -48,6 +55,9 @@ function App() {
                       <HomePage
                         selectedMonth={selectedMonth}
                         setSelectedMonth={setSelectedMonth}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        viewMode={viewMode}
                         isSidebarOpen={isSidebarOpen}
                         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
                       />

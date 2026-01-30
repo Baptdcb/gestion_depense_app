@@ -3,23 +3,33 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 
 import MonthSelector from "../components/utils/MonthSelector";
+import YearSelector from "../components/utils/YearSelector";
 import ExpenseList from "../components/Dashboard/Expenses/ExpenseList";
 import AddCategoryForm from "../components/Dashboard/AddActions/AddCategoryForm";
 import ManageCategoriesModal from "../components/Dashboard/AddActions/ManageCategoriesModal";
 import AddExpenseForm from "../components/Dashboard/AddActions/AddExpenseForm"; // Import AddExpenseForm
-import { getExpenses, getMonthlySummary } from "../services/expenseApi";
+import {
+  getExpenses,
+  getExpensesByYear,
+  getMonthlySummary,
+  getYearlySummary,
+} from "../services/expenseApi";
 import { getCategories } from "../services/categoryApi";
 import { getBudget } from "../services/budgetApi";
-import { FaPlus, FaChartPie } from "react-icons/fa";
+import { FaPlus, FaChartPie, FaRedo } from "react-icons/fa";
 import SummaryDisplay from "../components/Dashboard/Summary/SummaryDisplay";
 import BudgetProgress from "../components/Dashboard/Budget/BudgetProgress";
 import BudgetModal from "../components/Dashboard/Budget/BudgetModal";
+import RecurringExpensesModal from "../components/AllMenu/RecurringExpensesModal";
 import { fr } from "date-fns/locale/fr";
 import { TbLayoutSidebar, TbLayoutSidebarFilled } from "react-icons/tb";
 
 interface HomePageProps {
   selectedMonth: Date;
   setSelectedMonth: (date: Date) => void;
+  selectedYear: number;
+  setSelectedYear: (year: number) => void;
+  viewMode: "month" | "year";
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
@@ -27,6 +37,9 @@ interface HomePageProps {
 export default function HomePage({
   selectedMonth,
   setSelectedMonth,
+  selectedYear,
+  setSelectedYear,
+  viewMode,
   isSidebarOpen,
   toggleSidebar,
 }: HomePageProps) {
@@ -36,21 +49,30 @@ export default function HomePage({
     useState(false);
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
 
   const monthString = format(selectedMonth, "yyyy-MM");
+  const yearString = String(selectedYear);
+  const currentPeriodKey = viewMode === "month" ? monthString : yearString;
 
   const {
     data: expenses,
     isLoading: isLoadingExpenses,
     error: expensesError,
   } = useQuery({
-    queryKey: ["expenses", monthString],
-    queryFn: () => getExpenses(monthString),
+    queryKey: ["expenses", currentPeriodKey, viewMode],
+    queryFn: () =>
+      viewMode === "month"
+        ? getExpenses(monthString)
+        : getExpensesByYear(selectedYear),
   });
 
   const { data: summary, isLoading: isLoadingSummary } = useQuery({
-    queryKey: ["summary", monthString],
-    queryFn: () => getMonthlySummary(monthString),
+    queryKey: ["summary", currentPeriodKey, viewMode],
+    queryFn: () =>
+      viewMode === "month"
+        ? getMonthlySummary(monthString)
+        : getYearlySummary(selectedYear),
   });
 
   // Fetch categories as well
@@ -66,10 +88,12 @@ export default function HomePage({
   const { data: budgetData } = useQuery({
     queryKey: ["budget", monthString],
     queryFn: () => getBudget(monthString),
+    enabled: viewMode === "month",
   });
 
   const total =
     summary?.reduce((acc, item) => acc + (Number(item.total) || 0), 0) ?? 0;
+  const expenseCount = expenses?.length ?? 0;
 
   const renderContent = () => {
     if (isLoadingExpenses) {
@@ -82,7 +106,62 @@ export default function HomePage({
         </div>
       );
     }
-    return <ExpenseList expenses={expenses || []} />;
+    return (
+      <ExpenseList
+        expenses={expenses || []}
+        categories={categories || []}
+        currentPeriodKey={currentPeriodKey}
+        viewMode={viewMode}
+      />
+    );
+  };
+
+  const renderPieChart = () => {
+    if (!summary || summary.length === 0 || total === 0) return null;
+
+    let cumulativePercent = 0;
+    const slices = summary.map((item) => {
+      const percent = (Number(item.total) / total) * 100;
+      const startPercent = cumulativePercent;
+      cumulativePercent += percent;
+      return {
+        category: item.categorie.nom,
+        color: item.categorie.couleur,
+        percent,
+        startPercent,
+      };
+    });
+
+    return (
+      <svg viewBox="0 0 36 36" className="w-full h-full">
+        <circle
+          cx="18"
+          cy="18"
+          r="15.9155"
+          fill="transparent"
+          stroke="#1a1a1a"
+          strokeWidth="3.8"
+        />
+        {slices.map((slice, idx) => {
+          const angle = (slice.startPercent * 3.6).toFixed(2);
+          const dashLength = ((slice.percent / 100) * 100).toFixed(2);
+          return (
+            <circle
+              key={idx}
+              cx="18"
+              cy="18"
+              r="15.9155"
+              fill="transparent"
+              stroke={slice.color}
+              strokeWidth="3.8"
+              strokeDasharray={`${dashLength} ${100 - Number(dashLength)}`}
+              strokeDashoffset="25"
+              transform={`rotate(${angle} 18 18)`}
+            />
+          );
+        })}
+      </svg>
+    );
   };
 
   return (
@@ -107,41 +186,68 @@ export default function HomePage({
             Visualisez et gérez vos finances avec précision.
           </p>
         </div>
-        <MonthSelector
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-        />
+        {viewMode === "month" ? (
+          <MonthSelector
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+          />
+        ) : (
+          <YearSelector
+            selectedYear={selectedYear}
+            onChange={setSelectedYear}
+            minYear={2020}
+            maxYear={new Date().getFullYear()}
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Budget Section - High Visibility Bento Box */}
-        <div className="md:col-span-4 bento-card relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <FaChartPie size={80} className="text-linear-accent" />
+        {viewMode === "month" && (
+          <div className="md:col-span-4 bento-card relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <FaChartPie size={80} className="text-linear-accent" />
+            </div>
+            <div className="flex justify-between items-center mb-6 relative z-10">
+              <h2 className="text-lg font-medium text-white/90">
+                Suivi Budget
+              </h2>
+              <button
+                onClick={() => setIsBudgetModalOpen(true)}
+                className="glass-pill text-xs font-medium text-linear-accent hover:text-white"
+              >
+                Configurer
+              </button>
+            </div>
+            <div className="relative z-10">
+              <BudgetProgress
+                budget={budgetData?.budget ?? null}
+                summary={summary || []}
+                totalSpent={total}
+              />
+            </div>
           </div>
-          <div className="flex justify-between items-center mb-6 relative z-10">
-            <h2 className="text-lg font-medium text-white/90">Suivi Budget</h2>
-            <button
-              onClick={() => setIsBudgetModalOpen(true)}
-              className="glass-pill text-xs font-medium text-linear-accent hover:text-white"
-            >
-              Configurer
-            </button>
-          </div>
-          <div className="relative z-10">
-            <BudgetProgress
-              budget={budgetData?.budget ?? null}
-              summary={summary || []}
-              totalSpent={total}
-            />
-          </div>
-        </div>
+        )}
 
         {/* Répartition Section */}
-        <div className="md:col-span-8 bento-card">
-          <h2 className="text-lg font-medium mb-6 text-white/90">
-            Répartition par catégorie
-          </h2>
+        <div
+          className={
+            viewMode === "month"
+              ? "md:col-span-8 bento-card"
+              : "md:col-span-12 bento-card"
+          }
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-medium text-white/90">
+              Répartition par catégorie
+            </h2>
+            <div className="flex items-center gap-3 text-sm text-white/70">
+              <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+                {expenseCount} dépense{expenseCount > 1 ? "s" : ""}
+              </span>
+              <div className="w-20 h-20">{renderPieChart()}</div>
+            </div>
+          </div>
           <SummaryDisplay
             summary={summary || []}
             isLoading={isLoadingSummary}
@@ -155,7 +261,9 @@ export default function HomePage({
             <h2 className="text-lg font-medium text-white/90">
               Transactions{" "}
               <span className="text-sm text-linear-text-secondary ml-2">
-                {format(selectedMonth, "MMMM yyyy", { locale: fr })}
+                {viewMode === "month"
+                  ? format(selectedMonth, "MMMM yyyy", { locale: fr })
+                  : selectedYear}
               </span>
             </h2>
           </div>
@@ -188,6 +296,18 @@ export default function HomePage({
                 </div>
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-1">
                   →
+                </div>
+              </button>
+
+              <button
+                onClick={() => setIsRecurringModalOpen(true)}
+                className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 transition-all group"
+              >
+                <div className="flex items-center">
+                  <div className="bg-white/10 text-white p-2 rounded-lg mr-3">
+                    <FaRedo size={14} />
+                  </div>
+                  <span className="font-medium">Dépenses récurrentes</span>
                 </div>
               </button>
 
@@ -228,6 +348,10 @@ export default function HomePage({
       <ManageCategoriesModal
         isOpen={isManageCategoriesModalOpen}
         onClose={() => setIsManageCategoriesModalOpen(false)}
+      />
+      <RecurringExpensesModal
+        isOpen={isRecurringModalOpen}
+        onClose={() => setIsRecurringModalOpen(false)}
       />
       {categories && (
         <AddExpenseForm

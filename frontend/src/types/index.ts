@@ -13,6 +13,7 @@ export interface Expense {
   mois: string; // YYYY-MM
   categorieId: number;
   createdAt: string; // ISO date string
+  recurringExpenseId?: number | null;
   categorie: Category;
 }
 
@@ -26,6 +27,25 @@ export interface NewExpense {
   description?: string;
   date: string; // YYYY-MM-DD
   categorieId: number;
+}
+
+export interface RecurringExpense {
+  id: number;
+  montant: number;
+  description: string | null;
+  categorieId: number;
+  active: boolean;
+  startDate: string;
+  createdAt: string;
+  categorie: Category;
+}
+
+export interface NewRecurringExpense {
+  montant: number;
+  description?: string;
+  categorieId: number;
+  active?: boolean;
+  startDate?: string;
 }
 
 export interface CategoryBudget {
