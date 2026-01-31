@@ -1,13 +1,10 @@
 import { type Expense } from "../../../types";
-import { type Category } from "../../../types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import DynamicFaIcon from "../../utils/DynamicFaIcon"; // Import DynamicFaIcon
+import DynamicFaIcon from "../../utils/DynamicFaIcon";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteExpense } from "../../../services/expenseApi";
-import { useState } from "react";
-import EditExpenseModal from "./EditExpenseModal";
 
 interface ExpenseListItemProps {
   expense: Expense;
@@ -86,20 +83,18 @@ function ExpenseListItem({ expense, onEdit, onDelete }: ExpenseListItemProps) {
 
 interface ExpenseListProps {
   expenses: Expense[];
-  categories: Category[];
   currentPeriodKey: string;
   viewMode: "month" | "year";
+  onEditExpense?: (expense: Expense) => void;
 }
 
 export default function ExpenseList({
   expenses,
-  categories,
   currentPeriodKey,
   viewMode,
+  onEditExpense,
 }: ExpenseListProps) {
   const queryClient = useQueryClient();
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const deleteMutation = useMutation({
     mutationFn: deleteExpense,
@@ -114,8 +109,7 @@ export default function ExpenseList({
   });
 
   const handleEdit = (expense: Expense) => {
-    setEditingExpense(expense);
-    setIsEditOpen(true);
+    onEditExpense?.(expense);
   };
 
   const handleDelete = (expense: Expense) => {
@@ -133,25 +127,15 @@ export default function ExpenseList({
   }
 
   return (
-    <>
-      <div className="space-y-2">
-        {expenses.map((expense) => (
-          <ExpenseListItem
-            key={expense.id}
-            expense={expense}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
-      <EditExpenseModal
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        expense={editingExpense}
-        categories={categories}
-        currentPeriodKey={currentPeriodKey}
-        viewMode={viewMode}
-      />
-    </>
+    <div className="space-y-2">
+      {expenses.map((expense) => (
+        <ExpenseListItem
+          key={expense.id}
+          expense={expense}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      ))}
+    </div>
   );
 }

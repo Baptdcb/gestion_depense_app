@@ -7,7 +7,9 @@ import YearSelector from "../components/utils/YearSelector";
 import ExpenseList from "../components/Dashboard/Expenses/ExpenseList";
 import AddCategoryForm from "../components/Dashboard/AddActions/AddCategoryForm";
 import ManageCategoriesModal from "../components/Dashboard/AddActions/ManageCategoriesModal";
-import AddExpenseForm from "../components/Dashboard/AddActions/AddExpenseForm"; // Import AddExpenseForm
+import AddExpenseForm from "../components/Dashboard/AddActions/AddExpenseForm";
+import EditExpenseModal from "../components/Dashboard/Expenses/EditExpenseModal";
+import type { Expense } from "../types"; // Import AddExpenseForm
 import {
   getExpenses,
   getExpensesByYear,
@@ -50,6 +52,11 @@ export default function HomePage({
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
+  const [isEditExpenseModalOpen, setIsEditExpenseModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  );
 
   const monthString = format(selectedMonth, "yyyy-MM");
   const yearString = String(selectedYear);
@@ -95,6 +102,21 @@ export default function HomePage({
     summary?.reduce((acc, item) => acc + (Number(item.total) || 0), 0) ?? 0;
   const expenseCount = expenses?.length ?? 0;
 
+  const handleEditExpense = (expense: Expense) => {
+    setEditingExpense(expense);
+    setIsEditExpenseModalOpen(true);
+  };
+
+  const handleCategoryClick = (categoryId: number) => {
+    setSelectedCategoryId(
+      selectedCategoryId === categoryId ? null : categoryId,
+    );
+  };
+
+  const filteredExpenses = selectedCategoryId
+    ? expenses?.filter((e) => e.categorieId === selectedCategoryId)
+    : expenses;
+
   const renderContent = () => {
     if (isLoadingExpenses) {
       return <div className="text-center p-8">Chargement des dépenses...</div>;
@@ -108,10 +130,10 @@ export default function HomePage({
     }
     return (
       <ExpenseList
-        expenses={expenses || []}
-        categories={categories || []}
+        expenses={filteredExpenses || []}
         currentPeriodKey={currentPeriodKey}
         viewMode={viewMode}
+        onEditExpense={handleEditExpense}
       />
     );
   };
@@ -243,7 +265,14 @@ export default function HomePage({
             </h2>
             <div className="flex items-center gap-3 text-sm text-white/70">
               <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
-                {expenseCount} dépense{expenseCount > 1 ? "s" : ""}
+                {selectedCategoryId ? filteredExpenses?.length : expenseCount}{" "}
+                dépense
+                {((selectedCategoryId
+                  ? filteredExpenses?.length
+                  : expenseCount) ?? 0) > 1
+                  ? "s"
+                  : ""}
+                {selectedCategoryId && " filtrée(s)"}
               </span>
               <div className="w-20 h-20">{renderPieChart()}</div>
             </div>
@@ -252,6 +281,8 @@ export default function HomePage({
             summary={summary || []}
             isLoading={isLoadingSummary}
             total={total}
+            onCategoryClick={handleCategoryClick}
+            selectedCategoryId={selectedCategoryId}
           />
         </div>
 
@@ -266,6 +297,14 @@ export default function HomePage({
                   : selectedYear}
               </span>
             </h2>
+            {selectedCategoryId && (
+              <button
+                onClick={() => setSelectedCategoryId(null)}
+                className="text-xs px-3 py-1.5 rounded-lg bg-linear-accent/20 border border-linear-accent/40 text-linear-accent hover:bg-linear-accent/30 transition-all"
+              >
+                ✕ Réinitialiser le filtre
+              </button>
+            )}
           </div>
           <div className="overflow-hidden">{renderContent()}</div>
         </div>
@@ -369,6 +408,16 @@ export default function HomePage({
           currentMonth={monthString}
           initialBudget={budgetData?.budget ?? null}
           isDefault={budgetData?.isDefault ?? false}
+        />
+      )}
+      {categories && (
+        <EditExpenseModal
+          isOpen={isEditExpenseModalOpen}
+          onClose={() => setIsEditExpenseModalOpen(false)}
+          expense={editingExpense}
+          categories={categories}
+          currentPeriodKey={currentPeriodKey}
+          viewMode={viewMode}
         />
       )}
     </div>
