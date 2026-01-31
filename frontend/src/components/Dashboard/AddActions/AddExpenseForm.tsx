@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createExpense } from "../../../services/expenseApi";
-import { type Category, type NewExpense } from "../../../types";
+import { type Category } from "../../../types";
 import { FaTimes } from "react-icons/fa";
 import { format } from "date-fns";
+import { useCreateExpense } from "../../../hooks/useExpenses";
 
 interface AddExpenseFormProps {
   isOpen: boolean;
@@ -24,44 +23,32 @@ export default function AddExpenseForm({
   const [categorieId, setCategorieId] = useState<string>("");
   const [type, setType] = useState<"expense" | "refund">("expense");
 
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (newExpense: NewExpense) => createExpense(newExpense),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenses", currentMonth] });
-      queryClient.invalidateQueries({ queryKey: ["summary", currentMonth] });
-      setMontant("");
-      setDescription("");
-      setDate(format(new Date(), "yyyy-MM-dd"));
-      setCategorieId("");
-      setType("expense");
-      onClose();
-    },
-    onError: (
-      error: Error & { response?: { data?: { message?: string } } },
-    ) => {
-      console.error("Erreur lors de l'ajout de la dépense:", error);
-      alert(
-        "Erreur lors de l'ajout de la dépense: " +
-          (error.response?.data?.message || error.message),
-      );
-    },
-  });
+  const mutation = useCreateExpense(currentMonth, "month");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!categorieId) {
-      alert("Veuillez sélectionner une catégorie.");
       return;
     }
-    mutation.mutate({
-      montant: parseFloat(montant),
-      description: description || undefined,
-      date: date,
-      categorieId: parseInt(categorieId),
-      type: type,
-    });
+    mutation.mutate(
+      {
+        montant: parseFloat(montant),
+        description: description || undefined,
+        date: date,
+        categorieId: parseInt(categorieId),
+        type: type,
+      },
+      {
+        onSuccess: () => {
+          setMontant("");
+          setDescription("");
+          setDate(format(new Date(), "yyyy-MM-dd"));
+          setCategorieId("");
+          setType("expense");
+          onClose();
+        },
+      },
+    );
   };
 
   if (!isOpen) return null;
@@ -206,17 +193,14 @@ export default function AddExpenseForm({
               className="bento-button-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {mutation.isPending
-                ? "Ajout..."
+                ? type === "expense"
+                  ? "Ajout de la dépense..."
+                  : "Ajout du remboursement..."
                 : type === "expense"
                   ? "Confirmer la dépense"
                   : "Confirmer le remboursement"}
             </button>
           </div>
-          {mutation.isError && (
-            <p className="text-red-500 text-xs mt-2 text-center">
-              {mutation.error.message || "Une erreur est survenue."}
-            </p>
-          )}
         </form>
       </div>
     </div>

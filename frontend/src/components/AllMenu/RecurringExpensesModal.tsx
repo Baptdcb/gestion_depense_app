@@ -1,21 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  createRecurringExpense,
-  deleteRecurringExpense,
-  getRecurringExpenses,
-  updateRecurringExpense,
-} from "../../services/recurringExpenseApi";
+import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "../../services/categoryApi";
-import type {
-  Category,
-  NewRecurringExpense,
-  RecurringExpense,
-} from "../../types";
+import type { Category, RecurringExpense } from "../../types";
 import { FaEdit, FaTimes, FaTrash } from "react-icons/fa";
 import DynamicFaIcon from "../utils/DynamicFaIcon";
 import { format } from "date-fns";
-import { toast } from "react-toastify";
+import {
+  useRecurringExpensesList,
+  useCreateRecurringExpense,
+  useUpdateRecurringExpense,
+  useDeleteRecurringExpense,
+} from "../../hooks/useRecurringExpenses";
+import { useToast } from "../../hooks/useToast";
 
 interface RecurringExpensesModalProps {
   isOpen: boolean;
@@ -60,20 +56,19 @@ export default function RecurringExpensesModal({
   isOpen,
   onClose,
 }: RecurringExpensesModalProps) {
-  const queryClient = useQueryClient();
   const [editing, setEditing] = useState<RecurringExpense | null>(null);
+  const toast = useToast();
 
-  const { data: recurring, isLoading } = useQuery({
-    queryKey: ["recurring-expenses"],
-    queryFn: getRecurringExpenses,
-    enabled: isOpen,
-  });
-
+  const { data: recurring, isLoading } = useRecurringExpensesList();
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
     enabled: isOpen,
   });
+
+  const createMutation = useCreateRecurringExpense();
+  const updateMutation = useUpdateRecurringExpense();
+  const deleteMutation = useDeleteRecurringExpense();
 
   const defaultDate = useMemo(() => format(new Date(), "yyyy-MM-01"), []);
   const [form, setForm] = useState<FormState>(
@@ -84,51 +79,10 @@ export default function RecurringExpensesModal({
     setForm(getFormFromEditing(editing, defaultDate));
   }, [editing, defaultDate]);
 
-  const createMutation = useMutation({
-    mutationFn: createRecurringExpense,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["recurring-expenses"] });
-      toast.success("Dépense récurrente créée.");
-      setEditing(null);
-      setForm(emptyForm(defaultDate));
-    },
-    onError: () => toast.error("Erreur lors de la création."),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: number;
-      payload: Partial<RecurringExpense>;
-    }) =>
-      updateRecurringExpense(
-        id,
-        payload as Partial<NewRecurringExpense> & { active?: boolean },
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["recurring-expenses"] });
-      toast.success("Dépense récurrente mise à jour.");
-      setEditing(null);
-      setForm(emptyForm(defaultDate));
-    },
-    onError: () => toast.error("Erreur lors de la mise à jour."),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteRecurringExpense,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["recurring-expenses"] });
-      toast.success("Dépense récurrente supprimée.");
-    },
-    onError: () => toast.error("Erreur lors de la suppression."),
-  });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.categorieId) {
-      toast.error("Veuillez sélectionner une catégorie.");
+      toast.error("✗ Veuillez sélectionner une catégorie");
       return;
     }
 
@@ -141,7 +95,10 @@ export default function RecurringExpensesModal({
     };
 
     if (editing) {
-      updateMutation.mutate({ id: editing.id, payload });
+      updateMutation.mutate({
+        id: editing.id,
+        data: payload,
+      });
     } else {
       createMutation.mutate(payload);
     }
@@ -158,6 +115,8 @@ export default function RecurringExpensesModal({
       )
     ) {
       deleteMutation.mutate(item.id);
+      setEditing(null);
+      setForm(emptyForm(defaultDate));
     }
   };
 

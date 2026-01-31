@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createCategory, updateCategory } from "../../../services/categoryApi";
-import { type Category, type NewCategory } from "../../../types";
+import { type Category } from "../../../types";
 import { FaTimes, FaCheck } from "react-icons/fa";
 import DynamicFaIcon from "../../utils/DynamicFaIcon";
+import {
+  useCreateCategory,
+  useUpdateCategory,
+} from "../../../hooks/useCategories";
 
 interface AddCategoryFormProps {
   isOpen: boolean;
@@ -95,32 +97,32 @@ export default function AddCategoryForm({
     setCouleur(editingCategory?.couleur || colorPalette[0]);
   }
 
-  const queryClient = useQueryClient();
+  const createMutation = useCreateCategory();
+  const updateMutation = useUpdateCategory();
 
-  const mutation = useMutation({
-    mutationFn: (data: NewCategory) => {
-      if (editingCategory) {
-        return updateCategory(editingCategory.id, data);
-      }
-      return createCategory(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      queryClient.invalidateQueries({ queryKey: ["summary"] });
-      onClose();
-    },
-    onError: (
-      error: Error & { response?: { data?: { message?: string } } },
-    ) => {
-      console.error("Erreur catégorie:", error);
-      alert("Erreur lors de l'enregistrement de la catégorie.");
-    },
-  });
+  const mutation = editingCategory ? updateMutation : createMutation;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ nom, icone, couleur });
+    if (editingCategory) {
+      updateMutation.mutate(
+        { id: editingCategory.id, data: { nom, icone, couleur } },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        },
+      );
+    } else {
+      createMutation.mutate(
+        { nom, icone, couleur },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        },
+      );
+    }
   };
 
   if (!isOpen) return null;

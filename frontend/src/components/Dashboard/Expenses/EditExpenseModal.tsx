@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateExpense } from "../../../services/expenseApi";
-import type { Category, Expense, NewExpense } from "../../../types";
+import type { Category, Expense } from "../../../types";
 import { FaTimes } from "react-icons/fa";
+import { useUpdateExpense } from "../../../hooks/useExpenses";
 
 interface EditExpenseModalProps {
   isOpen: boolean;
@@ -21,13 +20,13 @@ export default function EditExpenseModal({
   currentPeriodKey,
   viewMode,
 }: EditExpenseModalProps) {
-  const queryClient = useQueryClient();
   const [montant, setMontant] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [categorieId, setCategorieId] = useState<string>("");
   const [type, setType] = useState<"expense" | "refund">("expense");
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (expense) {
@@ -39,40 +38,30 @@ export default function EditExpenseModal({
     }
   }, [expense]);
 
-  const mutation = useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: number;
-      payload: Partial<NewExpense>;
-    }) => updateExpense(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["expenses", currentPeriodKey, viewMode],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["summary", currentPeriodKey, viewMode],
-      });
-      onClose();
-    },
-  });
+  const mutation = useUpdateExpense(currentPeriodKey, viewMode);
 
   if (!isOpen || !expense) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!categorieId) return;
-    mutation.mutate({
-      id: expense.id,
-      payload: {
-        montant: Number(montant),
-        description: description || undefined,
-        date,
-        categorieId: Number(categorieId),
-        type: type,
+    mutation.mutate(
+      {
+        id: expense.id,
+        payload: {
+          montant: Number(montant),
+          description: description || undefined,
+          date,
+          categorieId: Number(categorieId),
+          type: type,
+        },
       },
-    });
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
   };
 
   return (

@@ -3,8 +3,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import DynamicFaIcon from "../../utils/DynamicFaIcon";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteExpense } from "../../../services/expenseApi";
+import { useDeleteExpense } from "../../../hooks/useExpenses";
 
 interface ExpenseListItemProps {
   expense: Expense;
@@ -110,19 +109,7 @@ export default function ExpenseList({
   viewMode,
   onEditExpense,
 }: ExpenseListProps) {
-  const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteExpense,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["expenses", currentPeriodKey, viewMode],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["summary", currentPeriodKey, viewMode],
-      });
-    },
-  });
+  const deleteMutation = useDeleteExpense(currentPeriodKey, viewMode);
 
   const handleEdit = (expense: Expense) => {
     onEditExpense?.(expense);

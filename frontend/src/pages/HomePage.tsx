@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 
 import MonthSelector from "../components/utils/MonthSelector";
@@ -9,15 +8,7 @@ import AddCategoryForm from "../components/Dashboard/AddActions/AddCategoryForm"
 import ManageCategoriesModal from "../components/Dashboard/AddActions/ManageCategoriesModal";
 import AddExpenseForm from "../components/Dashboard/AddActions/AddExpenseForm";
 import EditExpenseModal from "../components/Dashboard/Expenses/EditExpenseModal";
-import type { Expense } from "../types"; // Import AddExpenseForm
-import {
-  getExpenses,
-  getExpensesByYear,
-  getMonthlySummary,
-  getYearlySummary,
-} from "../services/expenseApi";
-import { getCategories } from "../services/categoryApi";
-import { getBudget } from "../services/budgetApi";
+import type { Expense } from "../types";
 import { FaPlus, FaChartPie, FaRedo } from "react-icons/fa";
 import SummaryDisplay from "../components/Dashboard/Summary/SummaryDisplay";
 import BudgetProgress from "../components/Dashboard/Budget/BudgetProgress";
@@ -25,6 +16,9 @@ import BudgetModal from "../components/Dashboard/Budget/BudgetModal";
 import RecurringExpensesModal from "../components/AllMenu/RecurringExpensesModal";
 import { fr } from "date-fns/locale/fr";
 import { TbLayoutSidebar, TbLayoutSidebarFilled } from "react-icons/tb";
+import { useExpensesList, useExpensesSummary } from "../hooks/useExpenses";
+import { useCategoriesList } from "../hooks/useCategories";
+import { useBudgetData } from "../hooks/useBudget";
 
 interface HomePageProps {
   selectedMonth: Date;
@@ -66,37 +60,21 @@ export default function HomePage({
     data: expenses,
     isLoading: isLoadingExpenses,
     error: expensesError,
-  } = useQuery({
-    queryKey: ["expenses", currentPeriodKey, viewMode],
-    queryFn: () =>
-      viewMode === "month"
-        ? getExpenses(monthString)
-        : getExpensesByYear(selectedYear),
-  });
+  } = useExpensesList(monthString, viewMode, selectedYear);
 
-  const { data: summary, isLoading: isLoadingSummary } = useQuery({
-    queryKey: ["summary", currentPeriodKey, viewMode],
-    queryFn: () =>
-      viewMode === "month"
-        ? getMonthlySummary(monthString)
-        : getYearlySummary(selectedYear),
-  });
+  const { data: summary, isLoading: isLoadingSummary } = useExpensesSummary(
+    monthString,
+    viewMode,
+    selectedYear,
+  );
 
-  // Fetch categories as well
   const {
     data: categories,
     isLoading: isLoadingCategories,
     error: categoriesError,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategories,
-  });
+  } = useCategoriesList();
 
-  const { data: budgetData } = useQuery({
-    queryKey: ["budget", monthString],
-    queryFn: () => getBudget(monthString),
-    enabled: viewMode === "month",
-  });
+  const { data: budgetData } = useBudgetData(monthString);
 
   const total =
     summary?.reduce((acc, item) => acc + (Number(item.total) || 0), 0) ?? 0;

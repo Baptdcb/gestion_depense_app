@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { saveBudget } from "../../../services/budgetApi";
 import { getSetting } from "../../../services/settingApi";
 import { type Category, type Budget } from "../../../types";
 import { FaTimes } from "react-icons/fa";
+import { useCreateBudget, useUpdateBudget } from "../../../hooks/useBudget";
+import { useToast } from "../../../hooks/useToast";
 
 interface BudgetModalProps {
   isOpen: boolean;
@@ -27,7 +27,9 @@ export default function BudgetModal({
     [key: number]: string;
   }>({});
 
-  const queryClient = useQueryClient();
+  const toast = useToast();
+  const createMutation = useCreateBudget(currentMonth);
+  const updateMutation = useUpdateBudget(currentMonth);
 
   // Synchronize state with props during render to avoid cascading renders in useEffect
   const [prevProps, setPrevProps] = useState({ isOpen, initialBudget });
@@ -51,22 +53,6 @@ export default function BudgetModal({
     }
   }
 
-  const mutation = useMutation({
-    mutationFn: (data: {
-      month: string;
-      globalLimit: number;
-      categoryBudgets: { categoryId: number; limit: number }[];
-    }) => saveBudget(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["budget", currentMonth] });
-      onClose();
-    },
-    onError: (error) => {
-      console.error("Erreur sauvegarde budget:", error);
-      alert("Erreur lors de la sauvegarde du budget");
-    },
-  });
-
   const handleCategoryLimitChange = (categoryId: number, value: string) => {
     setCategoryLimits((prev) => ({ ...prev, [categoryId]: value }));
   };
@@ -83,17 +69,32 @@ export default function BudgetModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const globalLimitValue = parseFloat(globalLimit) || 0;
+    if (globalLimitValue <= 0) {
+      toast.error("✗ Veuillez entrer un budget global valide");
+      return;
+    }
+
     // Prepare payload
     const payload = {
       month: currentMonth,
-      globalLimit: parseFloat(globalLimit) || 0,
+      globalLimit: globalLimitValue,
       categoryBudgets: Object.entries(categoryLimits).map(([catId, limit]) => ({
         categoryId: parseInt(catId),
         limit: parseFloat(limit) || 0,
       })),
     };
 
-    mutation.mutate(payload);
+    if (initialBudget) {
+      updateMutation.mutate({
+        id: initialBudget.id,
+        data: payload,
+      });
+    } else {
+      createMutation.mutate(payload);
+    }
+
+    onClose();
   };
 
   // Calculate sum of categories for helper display
@@ -201,9 +202,11 @@ export default function BudgetModal({
             <button
               type="submit"
               className="bento-button-primary w-full"
-              disabled={mutation.isPending}
+              disabled={createMutation.isPending || updateMutation.isPending}
             >
-              {mutation.isPending ? "Sauvegarde..." : "Enregistrer le Budget"}
+              {createMutation.isPending || updateMutation.isPending
+                ? "Sauvegarde..."
+                : "Enregistrer le Budget"}
             </button>
             <button
               type="button"
