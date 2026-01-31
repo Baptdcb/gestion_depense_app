@@ -50,17 +50,33 @@ function ExpenseListItem({ expense, onEdit, onDelete }: ExpenseListItemProps) {
                 </span>
               </>
             )}
+            {expense.type === "refund" && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-white/10" />
+                <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] uppercase tracking-wider text-green-400">
+                  Remboursement
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
       <div className="text-right">
-        <p className="font-semibold text-lg text-white">
+        <p
+          className={`font-semibold text-lg ${expense.type === "refund" ? "text-green-400" : "text-white"}`}
+        >
+          {expense.type === "refund" ? "+" : ""}
           {Number(expense.montant).toLocaleString("fr-FR", {
             minimumFractionDigits: 2,
           })}{" "}
           <span className="text-xs text-linear-text-secondary ml-0.5">€</span>
         </p>
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          {expense.type === "refund" && (
+            <span className="text-[10px] text-green-400 font-medium uppercase">
+              Remboursé
+            </span>
+          )}
           <button
             onClick={() => onEdit(expense)}
             className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"

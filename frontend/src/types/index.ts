@@ -11,6 +11,7 @@ export interface Expense {
   description: string | null;
   date: string; // ISO date string
   mois: string; // YYYY-MM
+  type: "expense" | "refund"; // New field
   categorieId: number;
   createdAt: string; // ISO date string
   recurringExpenseId?: number | null;
@@ -27,6 +28,7 @@ export interface NewExpense {
   description?: string;
   date: string; // YYYY-MM-DD
   categorieId: number;
+  type?: "expense" | "refund"; // New field
 }
 
 export interface RecurringExpense {

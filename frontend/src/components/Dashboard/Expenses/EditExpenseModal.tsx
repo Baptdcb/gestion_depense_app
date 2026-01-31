@@ -26,6 +26,7 @@ export default function EditExpenseModal({
   const [description, setDescription] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [categorieId, setCategorieId] = useState<string>("");
+  const [type, setType] = useState<"expense" | "refund">("expense");
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function EditExpenseModal({
       setDescription(expense.description || "");
       setDate(expense.date.slice(0, 10));
       setCategorieId(String(expense.categorieId));
+      setType(expense.type);
     }
   }, [expense]);
 
@@ -68,6 +70,7 @@ export default function EditExpenseModal({
         description: description || undefined,
         date,
         categorieId: Number(categorieId),
+        type: type,
       },
     });
   };
@@ -87,6 +90,43 @@ export default function EditExpenseModal({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Type Selection */}
+          <div>
+            <label className="block text-xs font-medium text-linear-text-secondary uppercase tracking-wider mb-3">
+              Type
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="type"
+                  value="expense"
+                  checked={type === "expense"}
+                  onChange={(e) =>
+                    setType(e.target.value as "expense" | "refund")
+                  }
+                  className="w-4 h-4 cursor-pointer"
+                />
+                <span className="ml-2 text-sm text-white/80">Dépense (−)</span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="type"
+                  value="refund"
+                  checked={type === "refund"}
+                  onChange={(e) =>
+                    setType(e.target.value as "expense" | "refund")
+                  }
+                  className="w-4 h-4 cursor-pointer"
+                />
+                <span className="ml-2 text-sm text-white/80">
+                  Remboursement (+)
+                </span>
+              </label>
+            </div>
+          </div>
+
           <div>
             <label
               htmlFor="montant-edit"

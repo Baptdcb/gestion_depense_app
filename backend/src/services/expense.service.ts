@@ -7,6 +7,7 @@ interface CreateExpenseInput {
   description?: string;
   date: Date;
   categorieId: number;
+  type?: "expense" | "refund";
 }
 
 interface UpdateExpenseInput {
@@ -14,6 +15,7 @@ interface UpdateExpenseInput {
   description?: string | null;
   date?: Date;
   categorieId?: number;
+  type?: "expense" | "refund";
 }
 
 export const createExpense = async (
@@ -26,6 +28,7 @@ export const createExpense = async (
       ...data,
       montant: data.montant,
       mois,
+      type: data.type ?? "expense",
     },
   });
 };

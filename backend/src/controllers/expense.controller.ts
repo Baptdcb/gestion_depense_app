@@ -16,8 +16,9 @@ const createExpenseSchema = z.object({
   description: z.string().optional(),
   date: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "La date doit être au format YYYY-MM-DD"), // Modified to accept simple date
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "La date doit être au format YYYY-MM-DD"),
   categorieId: z.number().int().positive(),
+  type: z.enum(["expense", "refund"]).optional(),
 });
 
 const updateExpenseSchema = z.object({
@@ -28,6 +29,7 @@ const updateExpenseSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "La date doit être au format YYYY-MM-DD")
     .optional(),
   categorieId: z.number().int().positive().optional(),
+  type: z.enum(["expense", "refund"]).optional(),
 });
 
 export const addExpense = async (
@@ -40,6 +42,7 @@ export const addExpense = async (
     const expense = await expenseService.createExpense({
       ...validatedData,
       date: new Date(validatedData.date),
+      type: validatedData.type as "expense" | "refund" | undefined,
     });
     res.status(201).json(expense);
   } catch (error) {

@@ -26,6 +26,7 @@ model Expense {
   description String?
   date        DateTime
   mois        String   // Format: YYYY-MM
+  type        String   @default("expense") // expense or refund
   categorie   Category @relation(fields: [categorieId], references: [id])
   categorieId Int
   recurringExpense   RecurringExpense? @relation(fields: [recurringExpenseId], references: [id])

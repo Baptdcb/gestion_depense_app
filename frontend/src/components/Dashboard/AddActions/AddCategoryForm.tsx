@@ -22,6 +22,16 @@ const colorPalette = [
   "#ff8800", // Dark Orange
   "#669900", // Dark Green
   "#CC0000", // Dark Red
+  "#009688", // Teal
+  "#E91E63", // Pink
+  "#FF5722", // Deep Orange
+  "#673AB7", // Deep Purple
+  "#3F51B5", // Indigo
+  "#2196F3", // Blue
+  "#00BCD4", // Cyan
+  "#4CAF50", // Green
+  "#8BC34A", // Light Green
+  "#FFEB3B", // Yellow
 ];
 
 const predefinedIcons = [
@@ -45,6 +55,21 @@ const predefinedIcons = [
   "FaGift",
   "FaCoffee",
   "FaMedkit",
+  "FaChartLine", // Investment/Finance
+  "FaPiggyBank", // Savings
+  "FaCreditCard", // Credit/Payment
+  "FaMoneyBill", // Money/Salary
+  "FaShoppingCart", // Shopping
+  "FaHospital", // Healthcare
+  "FaGraduationCap", // Education
+  "FaMusic", // Entertainment/Music
+  "FaCamera", // Photography/Camera
+  "FaTree", // Nature/Garden
+  "FaFactory", // Work/Business
+  "FaDog", // Pet/Animals
+  "FaToolbox", // Tools/Repair
+  "FaHammer", // DIY/Construction
+  "FaLeaf", // Environment/Eco
 ];
 
 export default function AddCategoryForm({
