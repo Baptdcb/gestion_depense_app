@@ -65,6 +65,7 @@ model CategoryBudget {
   categoryId      Int
   category        Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   limit           Decimal       @db.Decimal(10, 2)
+  isDisabled      Boolean       @default(false) // true if category is disabled for this month
 
   @@unique([monthlyBudgetId, categoryId])
 }

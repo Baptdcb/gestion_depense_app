@@ -5,6 +5,7 @@ import { subMonths, format } from "date-fns";
 interface CategoryBudgetInput {
   categoryId: number;
   limit: number;
+  isDisabled?: boolean; // optional, defaults to false
 }
 
 interface SetBudgetInput {
@@ -123,6 +124,7 @@ export const setBudget = async (data: SetBudgetInput) => {
           monthlyBudgetId: monthlyBudget.id,
           categoryId: cb.categoryId,
           limit: cb.limit,
+          isDisabled: cb.isDisabled ?? false,
         })),
       });
     }

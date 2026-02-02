@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Category, Expense } from "../../../types";
 import { FaTimes } from "react-icons/fa";
 import { useUpdateExpense } from "../../../hooks/useExpenses";
+import { useDisabledCategories } from "../../../hooks/useBudget";
 
 interface EditExpenseModalProps {
   isOpen: boolean;
@@ -26,7 +27,13 @@ export default function EditExpenseModal({
   const [categorieId, setCategorieId] = useState<string>("");
   const [type, setType] = useState<"expense" | "refund">("expense");
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const mutation = useUpdateExpense(currentPeriodKey, viewMode);
+  const disabledCategoryIds = useDisabledCategories(currentPeriodKey);
+
+  const availableCategories = categories.filter(
+    (cat) => !disabledCategoryIds.includes(cat.id),
+  );
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (expense) {
@@ -37,8 +44,6 @@ export default function EditExpenseModal({
       setType(expense.type);
     }
   }, [expense]);
-
-  const mutation = useUpdateExpense(currentPeriodKey, viewMode);
 
   if (!isOpen || !expense) return null;
 
@@ -179,7 +184,7 @@ export default function EditExpenseModal({
                 onChange={(e) => setCategorieId(e.target.value)}
                 required
               >
-                {categories.map((cat) => (
+                {availableCategories.map((cat) => (
                   <option
                     key={cat.id}
                     value={cat.id}

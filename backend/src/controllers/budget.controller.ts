@@ -15,6 +15,7 @@ const setBudgetSchema = z.object({
     z.object({
       categoryId: z.number().int().positive(),
       limit: z.number().nonnegative(),
+      isDisabled: z.boolean().optional().default(false),
     }),
   ),
 });

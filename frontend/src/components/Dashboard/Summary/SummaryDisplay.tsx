@@ -27,10 +27,15 @@ export default function SummaryDisplay({
     );
   }
 
+  // Trier les catégories par pourcentage décroissant
+  const sortedSummary = [...summary].sort(
+    (a, b) => Number(b.total) - Number(a.total),
+  );
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {summary.map((item, index) => (
+        {sortedSummary.map((item, index) => (
           <div
             key={item.categorie.id || index}
             onClick={() => onCategoryClick?.(item.categorie.id)}

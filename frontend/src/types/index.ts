@@ -55,6 +55,7 @@ export interface CategoryBudget {
   monthlyBudgetId: number;
   categoryId: number;
   limit: string;
+  isDisabled: boolean; // true if category is disabled for this month
   category: Category;
 }
 

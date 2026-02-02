@@ -11,6 +11,7 @@ import EditExpenseModal from "../components/Dashboard/Expenses/EditExpenseModal"
 import type { Expense } from "../types";
 import { FaPlus, FaChartPie, FaRedo } from "react-icons/fa";
 import SummaryDisplay from "../components/Dashboard/Summary/SummaryDisplay";
+import SmallPieChart from "../components/Dashboard/Summary/SmallPieChart";
 import BudgetProgress from "../components/Dashboard/Budget/BudgetProgress";
 import BudgetModal from "../components/Dashboard/Budget/BudgetModal";
 import RecurringExpensesModal from "../components/AllMenu/RecurringExpensesModal";
@@ -118,50 +119,14 @@ export default function HomePage({
 
   const renderPieChart = () => {
     if (!summary || summary.length === 0 || total === 0) return null;
-
-    let cumulativePercent = 0;
-    const slices = summary.map((item) => {
-      const percent = (Number(item.total) / total) * 100;
-      const startPercent = cumulativePercent;
-      cumulativePercent += percent;
-      return {
-        category: item.categorie.nom,
-        color: item.categorie.couleur,
-        percent,
-        startPercent,
-      };
-    });
-
-    return (
-      <svg viewBox="0 0 36 36" className="w-full h-full">
-        <circle
-          cx="18"
-          cy="18"
-          r="15.9155"
-          fill="transparent"
-          stroke="#1a1a1a"
-          strokeWidth="3.8"
-        />
-        {slices.map((slice, idx) => {
-          const angle = (slice.startPercent * 3.6).toFixed(2);
-          const dashLength = ((slice.percent / 100) * 100).toFixed(2);
-          return (
-            <circle
-              key={idx}
-              cx="18"
-              cy="18"
-              r="15.9155"
-              fill="transparent"
-              stroke={slice.color}
-              strokeWidth="3.8"
-              strokeDasharray={`${dashLength} ${100 - Number(dashLength)}`}
-              strokeDashoffset="25"
-              transform={`rotate(${angle} 18 18)`}
-            />
-          );
-        })}
-      </svg>
-    );
+    const validSummary = summary.filter(
+      (item) => item.total !== null && item.total !== undefined,
+    ) as Array<{
+      categorie: { id: number; nom: string; couleur: string };
+      total: string | number;
+    }>;
+    if (validSummary.length === 0) return null;
+    return <SmallPieChart summary={validSummary} total={total} />;
   };
 
   return (

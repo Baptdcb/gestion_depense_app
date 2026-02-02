@@ -10,6 +10,15 @@ export const useBudgetData = (month: string) => {
   });
 };
 
+export const useDisabledCategories = (month: string) => {
+  const { data: budgetData } = useBudgetData(month);
+  return (
+    budgetData?.budget?.categoryBudgets
+      ?.filter((cb) => cb.isDisabled)
+      .map((cb) => cb.categoryId) || []
+  );
+};
+
 export const useCreateBudget = (month: string) => {
   const queryClient = useQueryClient();
   const toast = useToast();

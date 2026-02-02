@@ -3,6 +3,7 @@ import { type Category } from "../../../types";
 import { FaTimes } from "react-icons/fa";
 import { format } from "date-fns";
 import { useCreateExpense } from "../../../hooks/useExpenses";
+import { useDisabledCategories } from "../../../hooks/useBudget";
 
 interface AddExpenseFormProps {
   isOpen: boolean;
@@ -23,7 +24,12 @@ export default function AddExpenseForm({
   const [categorieId, setCategorieId] = useState<string>("");
   const [type, setType] = useState<"expense" | "refund">("expense");
 
+  const disabledCategoryIds = useDisabledCategories(currentMonth);
   const mutation = useCreateExpense(currentMonth, "month");
+
+  const availableCategories = categories.filter(
+    (cat) => !disabledCategoryIds.includes(cat.id),
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,7 +179,7 @@ export default function AddExpenseForm({
                 <option value="" className="bg-linear-surface">
                   Sélectionner
                 </option>
-                {categories.map((cat) => (
+                {availableCategories.map((cat) => (
                   <option
                     key={cat.id}
                     value={cat.id}
