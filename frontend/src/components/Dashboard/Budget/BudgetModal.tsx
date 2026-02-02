@@ -133,7 +133,7 @@ export default function BudgetModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm  flex justify-center items-center p-4">
       <div className="bg-linear-surface border border-white/10 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in duration-200">
         {/* Header - Fixed */}
         <div className="flex justify-between items-center p-6 border-b border-white/5">
@@ -235,7 +235,7 @@ export default function BudgetModal({
                       key={cat.id}
                       className={`group relative p-4 rounded-xl border transition-all duration-200 ${
                         isDisabled
-                          ? "border-white/5 bg-white/[0.02]"
+                          ? "border-white/5 "
                           : "border-white/10 bg-white/5 hover:border-linear-accent/30 hover:bg-white/10"
                       }`}
                     >
@@ -252,7 +252,7 @@ export default function BudgetModal({
                           >
                             <DynamicFaIcon iconName={cat.icone} size={14} />
                           </div>
-                          <span className="text-sm font-medium text-white truncate max-w-[100px]">
+                          <span className="text-sm font-medium text-white truncate ">
                             {cat.nom}
                           </span>
                         </div>
