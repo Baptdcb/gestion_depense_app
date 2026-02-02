@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createExpense } from "../../../services/expenseApi";
-import { type Category, type NewExpense } from "../../../types";
+import { type Category } from "../../../types";
 import { FaTimes } from "react-icons/fa";
 import { format } from "date-fns";
+import { useCreateExpense } from "../../../hooks/useExpenses";
+import { useDisabledCategories } from "../../../hooks/useBudget";
 
 interface AddExpenseFormProps {
   isOpen: boolean;
@@ -21,44 +21,40 @@ export default function AddExpenseForm({
   const [montant, setMontant] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
-  const [categorieId, setCategorieId] = useState<string>(""); // Storing as string from select
+  const [categorieId, setCategorieId] = useState<string>("");
+  const [type, setType] = useState<"expense" | "refund">("expense");
 
-  const queryClient = useQueryClient();
+  const disabledCategoryIds = useDisabledCategories(currentMonth);
+  const mutation = useCreateExpense(currentMonth, "month");
 
-  const mutation = useMutation({
-    mutationFn: (newExpense: NewExpense) => createExpense(newExpense),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenses", currentMonth] });
-      queryClient.invalidateQueries({ queryKey: ["summary", currentMonth] });
-      setMontant("");
-      setDescription("");
-      setDate(format(new Date(), "yyyy-MM-dd"));
-      setCategorieId("");
-      onClose();
-    },
-    onError: (
-      error: Error & { response?: { data?: { message?: string } } },
-    ) => {
-      console.error("Erreur lors de l'ajout de la dépense:", error);
-      alert(
-        "Erreur lors de l'ajout de la dépense: " +
-          (error.response?.data?.message || error.message),
-      );
-    },
-  });
+  const availableCategories = categories.filter(
+    (cat) => !disabledCategoryIds.includes(cat.id),
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!categorieId) {
-      alert("Veuillez sélectionner une catégorie.");
       return;
     }
-    mutation.mutate({
-      montant: parseFloat(montant),
-      description: description || undefined,
-      date: date,
-      categorieId: parseInt(categorieId),
-    });
+    mutation.mutate(
+      {
+        montant: parseFloat(montant),
+        description: description || undefined,
+        date: date,
+        categorieId: parseInt(categorieId),
+        type: type,
+      },
+      {
+        onSuccess: () => {
+          setMontant("");
+          setDescription("");
+          setDate(format(new Date(), "yyyy-MM-dd"));
+          setCategorieId("");
+          setType("expense");
+          onClose();
+        },
+      },
+    );
   };
 
   if (!isOpen) return null;
@@ -68,7 +64,7 @@ export default function AddExpenseForm({
       <div className="bg-linear-surface border border-white/10 p-8 rounded-3xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in duration-200">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-xl font-semibold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            Nouvelle Dépense
+            {type === "expense" ? "Nouvelle Dépense" : "Nouveau Remboursement"}
           </h2>
           <button
             onClick={onClose}
@@ -78,6 +74,43 @@ export default function AddExpenseForm({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Type Selection */}
+          <div>
+            <label className="block text-xs font-medium text-linear-text-secondary uppercase tracking-wider mb-3">
+              Type
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="type"
+                  value="expense"
+                  checked={type === "expense"}
+                  onChange={(e) =>
+                    setType(e.target.value as "expense" | "refund")
+                  }
+                  className="w-4 h-4 cursor-pointer"
+                />
+                <span className="ml-2 text-sm text-white/80">Dépense (−)</span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="type"
+                  value="refund"
+                  checked={type === "refund"}
+                  onChange={(e) =>
+                    setType(e.target.value as "expense" | "refund")
+                  }
+                  className="w-4 h-4 cursor-pointer"
+                />
+                <span className="ml-2 text-sm text-white/80">
+                  Remboursement (+)
+                </span>
+              </label>
+            </div>
+          </div>
+
           <div>
             <label
               htmlFor="montant"
@@ -146,7 +179,7 @@ export default function AddExpenseForm({
                 <option value="" className="bg-linear-surface">
                   Sélectionner
                 </option>
-                {categories.map((cat) => (
+                {availableCategories.map((cat) => (
                   <option
                     key={cat.id}
                     value={cat.id}
@@ -165,14 +198,15 @@ export default function AddExpenseForm({
               disabled={mutation.isPending}
               className="bento-button-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {mutation.isPending ? "Ajout..." : "Confirmer la dépense"}
+              {mutation.isPending
+                ? type === "expense"
+                  ? "Ajout de la dépense..."
+                  : "Ajout du remboursement..."
+                : type === "expense"
+                  ? "Confirmer la dépense"
+                  : "Confirmer le remboursement"}
             </button>
           </div>
-          {mutation.isError && (
-            <p className="text-red-500 text-xs mt-2 text-center">
-              {mutation.error.message || "Une erreur est survenue."}
-            </p>
-          )}
         </form>
       </div>
     </div>

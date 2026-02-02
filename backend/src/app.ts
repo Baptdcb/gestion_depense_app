@@ -5,6 +5,7 @@ import expenseRoutes from "./routes/expense.routes";
 import budgetRoutes from "./routes/budget.routes";
 import settingRoutes from "./routes/setting.routes";
 import reportRoutes from "./routes/report.routes";
+import recurringExpenseRoutes from "./routes/recurringExpense.routes";
 import errorHandler from "./middlewares/errorHandler";
 
 const app = express();
@@ -19,6 +20,7 @@ app.use("/api/expenses", expenseRoutes);
 app.use("/api/budgets", budgetRoutes);
 app.use("/api/settings", settingRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/recurring-expenses", recurringExpenseRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

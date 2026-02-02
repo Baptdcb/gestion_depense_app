@@ -17,6 +17,7 @@ model Category {
   couleur  String   @default("#E2E8F0")
   expenses Expense[]
   categoryBudgets CategoryBudget[]
+  recurringExpenses RecurringExpense[]
 }
 
 model Expense {
@@ -25,11 +26,27 @@ model Expense {
   description String?
   date        DateTime
   mois        String   // Format: YYYY-MM
+  type        String   @default("expense") // expense or refund
   categorie   Category @relation(fields: [categorieId], references: [id])
   categorieId Int
+  recurringExpense   RecurringExpense? @relation(fields: [recurringExpenseId], references: [id])
+  recurringExpenseId Int?
   createdAt   DateTime @default(now())
 
   @@index([mois])
+  @@index([recurringExpenseId])
+}
+
+model RecurringExpense {
+  id          Int      @id @default(autoincrement())
+  montant     Decimal  @db.Decimal(10, 2)
+  description String?
+  categorie   Category @relation(fields: [categorieId], references: [id])
+  categorieId Int
+  active      Boolean  @default(true)
+  startDate   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  expenses    Expense[]
 }
 
 model MonthlyBudget {
@@ -48,6 +65,7 @@ model CategoryBudget {
   categoryId      Int
   category        Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   limit           Decimal       @db.Decimal(10, 2)
+  isDisabled      Boolean       @default(false) // true if category is disabled for this month
 
   @@unique([monthlyBudgetId, categoryId])
 }

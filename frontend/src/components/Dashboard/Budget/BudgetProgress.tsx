@@ -29,7 +29,13 @@ export default function BudgetProgress({
   // We need to merge budget.categoryBudgets with summary because some cats might have spent but no budget, or budget but no spent.
   const categoryStats = new Map<
     number,
-    { nom: string; spent: number; limit: number; couleur: string }
+    {
+      nom: string;
+      spent: number;
+      limit: number;
+      couleur: string;
+      isDisabled: boolean;
+    }
   >();
 
   // Init with budgets
@@ -39,6 +45,7 @@ export default function BudgetProgress({
       spent: 0,
       limit: parseFloat(cb.limit),
       couleur: cb.category.couleur,
+      isDisabled: cb.isDisabled,
     });
   });
 
@@ -55,6 +62,7 @@ export default function BudgetProgress({
         spent: Number(s.total) || 0,
         limit: 0,
         couleur: s.categorie.couleur,
+        isDisabled: false,
       });
     }
   });
@@ -68,7 +76,7 @@ export default function BudgetProgress({
 
   return (
     <div className="space-y-6">
-      <div className=" p-4 rounded-lg border-2   border-linear-accent shadow-lg">
+      <div className=" p-4 rounded-lg border-3   border-linear-accent shadow-lg">
         <h3 className="text-lg font-bold text-purple-100 mb-2">
           Budget Global
         </h3>
@@ -89,15 +97,17 @@ export default function BudgetProgress({
           Détail par Catégorie
         </h3>
         <div className="max-h-96 overflow-y-auto pr-2">
-          {sortedStats.map((stat, idx) => (
-            <ProgressBar
-              key={idx}
-              label={stat.nom}
-              spent={stat.spent}
-              limit={stat.limit}
-              categoryColor={stat.couleur}
-            />
-          ))}
+          {sortedStats
+            .filter((stat) => !stat.isDisabled)
+            .map((stat, idx) => (
+              <ProgressBar
+                key={idx}
+                label={stat.nom}
+                spent={stat.spent}
+                limit={stat.limit}
+                categoryColor={stat.couleur}
+              />
+            ))}
         </div>
       </div>
     </div>

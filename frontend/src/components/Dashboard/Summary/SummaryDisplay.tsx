@@ -4,12 +4,16 @@ interface SummaryDisplayProps {
   summary: MonthlySummary[];
   isLoading: boolean;
   total: number;
+  onCategoryClick?: (categoryId: number) => void;
+  selectedCategoryId?: number | null;
 }
 
 export default function SummaryDisplay({
   summary,
   isLoading,
   total,
+  onCategoryClick,
+  selectedCategoryId,
 }: SummaryDisplayProps) {
   if (isLoading) {
     return <div className="text-center py-4">Chargement du résumé...</div>;
@@ -23,13 +27,23 @@ export default function SummaryDisplay({
     );
   }
 
+  // Trier les catégories par pourcentage décroissant
+  const sortedSummary = [...summary].sort(
+    (a, b) => Number(b.total) - Number(a.total),
+  );
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {summary.map((item, index) => (
+        {sortedSummary.map((item, index) => (
           <div
             key={item.categorie.id || index}
-            className="group flex flex-col p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all cursor-default"
+            onClick={() => onCategoryClick?.(item.categorie.id)}
+            className={`group flex flex-col p-4 rounded-xl transition-all cursor-pointer ${
+              selectedCategoryId === item.categorie.id
+                ? "bg-linear-accent/20 border-linear-accent/40 border-2"
+                : "bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10"
+            }`}
           >
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center">

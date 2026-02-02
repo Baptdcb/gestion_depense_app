@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createCategory, updateCategory } from "../../../services/categoryApi";
-import { type Category, type NewCategory } from "../../../types";
+import { type Category } from "../../../types";
 import { FaTimes, FaCheck } from "react-icons/fa";
 import DynamicFaIcon from "../../utils/DynamicFaIcon";
+import {
+  useCreateCategory,
+  useUpdateCategory,
+} from "../../../hooks/useCategories";
 
 interface AddCategoryFormProps {
   isOpen: boolean;
@@ -22,6 +24,16 @@ const colorPalette = [
   "#ff8800", // Dark Orange
   "#669900", // Dark Green
   "#CC0000", // Dark Red
+  "#009688", // Teal
+  "#E91E63", // Pink
+  "#FF5722", // Deep Orange
+  "#673AB7", // Deep Purple
+  "#3F51B5", // Indigo
+  "#2196F3", // Blue
+  "#00BCD4", // Cyan
+  "#4CAF50", // Green
+  "#8BC34A", // Light Green
+  "#FFEB3B", // Yellow
 ];
 
 const predefinedIcons = [
@@ -45,6 +57,21 @@ const predefinedIcons = [
   "FaGift",
   "FaCoffee",
   "FaMedkit",
+  "FaChartLine", // Investment/Finance
+  "FaPiggyBank", // Savings
+  "FaCreditCard", // Credit/Payment
+  "FaMoneyBill", // Money/Salary
+  "FaShoppingCart", // Shopping
+  "FaHospital", // Healthcare
+  "FaGraduationCap", // Education
+  "FaMusic", // Entertainment/Music
+  "FaCamera", // Photography/Camera
+  "FaTree", // Nature/Garden
+  "FaFactory", // Work/Business
+  "FaDog", // Pet/Animals
+  "FaToolbox", // Tools/Repair
+  "FaHammer", // DIY/Construction
+  "FaLeaf", // Environment/Eco
 ];
 
 export default function AddCategoryForm({
@@ -70,32 +97,32 @@ export default function AddCategoryForm({
     setCouleur(editingCategory?.couleur || colorPalette[0]);
   }
 
-  const queryClient = useQueryClient();
+  const createMutation = useCreateCategory();
+  const updateMutation = useUpdateCategory();
 
-  const mutation = useMutation({
-    mutationFn: (data: NewCategory) => {
-      if (editingCategory) {
-        return updateCategory(editingCategory.id, data);
-      }
-      return createCategory(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      queryClient.invalidateQueries({ queryKey: ["summary"] });
-      onClose();
-    },
-    onError: (
-      error: Error & { response?: { data?: { message?: string } } },
-    ) => {
-      console.error("Erreur catégorie:", error);
-      alert("Erreur lors de l'enregistrement de la catégorie.");
-    },
-  });
+  const mutation = editingCategory ? updateMutation : createMutation;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ nom, icone, couleur });
+    if (editingCategory) {
+      updateMutation.mutate(
+        { id: editingCategory.id, data: { nom, icone, couleur } },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        },
+      );
+    } else {
+      createMutation.mutate(
+        { nom, icone, couleur },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        },
+      );
+    }
   };
 
   if (!isOpen) return null;
