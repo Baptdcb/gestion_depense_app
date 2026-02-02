@@ -21,7 +21,6 @@ export default function BudgetModal({
   categories,
   currentMonth,
   initialBudget,
-  isDefault,
 }: BudgetModalProps) {
   const [globalLimit, setGlobalLimit] = useState<string>("");
   const [categoryLimits, setCategoryLimits] = useState<{
@@ -120,9 +119,14 @@ export default function BudgetModal({
     onClose();
   };
 
-  // Calculate sum of categories for helper display
-  const categoriesTotal = Object.values(categoryLimits).reduce(
-    (acc, val) => acc + (parseFloat(val) || 0),
+  // Calculate sum of categories for helper display (only enabled categories)
+  const categoriesTotal = Object.entries(categoryLimits).reduce(
+    (acc, [catId, val]) => {
+      const categoryId = parseInt(catId);
+      return !disabledCategories.has(categoryId)
+        ? acc + (parseFloat(val) || 0)
+        : acc;
+    },
     0,
   );
 

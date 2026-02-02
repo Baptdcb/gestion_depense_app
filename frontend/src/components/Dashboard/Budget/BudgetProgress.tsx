@@ -68,7 +68,7 @@ export default function BudgetProgress({
 
   return (
     <div className="space-y-6">
-      <div className=" p-4 rounded-lg border-2   border-linear-accent shadow-lg">
+      <div className=" p-4 rounded-lg border-3   border-linear-accent shadow-lg">
         <h3 className="text-lg font-bold text-purple-100 mb-2">
           Budget Global
         </h3>
