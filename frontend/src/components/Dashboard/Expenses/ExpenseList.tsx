@@ -57,6 +57,14 @@ function ExpenseListItem({ expense, onEdit, onDelete }: ExpenseListItemProps) {
                 </span>
               </>
             )}
+            {expense.isShared && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-white/10" />
+                <span className="px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] uppercase tracking-wider text-blue-400">
+                  Partagée ({expense.sharePercentage}%)
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -70,6 +78,18 @@ function ExpenseListItem({ expense, onEdit, onDelete }: ExpenseListItemProps) {
           })}{" "}
           <span className="text-xs text-linear-text-secondary ml-0.5">€</span>
         </p>
+        {expense.isShared && expense.sharePercentage && (
+          <p className="text-xs text-blue-400 mt-0.5">
+            Votre part :{" "}
+            {(
+              (Number(expense.montant) * expense.sharePercentage) /
+              100
+            ).toLocaleString("fr-FR", {
+              minimumFractionDigits: 2,
+            })}
+            €
+          </p>
+        )}
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           {expense.type === "refund" && (
             <span className="text-[10px] text-green-400 font-medium uppercase">

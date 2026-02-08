@@ -8,6 +8,8 @@ interface CreateExpenseInput {
   date: Date;
   categorieId: number;
   type?: "expense" | "refund";
+  isShared?: boolean;
+  sharePercentage?: number;
 }
 
 interface UpdateExpenseInput {
@@ -16,6 +18,8 @@ interface UpdateExpenseInput {
   date?: Date;
   categorieId?: number;
   type?: "expense" | "refund";
+  isShared?: boolean;
+  sharePercentage?: number;
 }
 
 export const createExpense = async (
@@ -29,6 +33,8 @@ export const createExpense = async (
       montant: data.montant,
       mois,
       type: data.type ?? "expense",
+      isShared: data.isShared,
+      sharePercentage: data.sharePercentage,
     },
   });
 };

@@ -16,6 +16,8 @@ export interface Expense {
   createdAt: string; // ISO date string
   recurringExpenseId?: number | null;
   categorie: Category;
+  isShared?: boolean;
+  sharePercentage?: number;
 }
 
 export interface MonthlySummary {
@@ -29,6 +31,8 @@ export interface NewExpense {
   date: string; // YYYY-MM-DD
   categorieId: number;
   type?: "expense" | "refund"; // New field
+  isShared?: boolean;
+  sharePercentage?: number;
 }
 
 export interface RecurringExpense {

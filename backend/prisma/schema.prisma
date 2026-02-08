@@ -27,6 +27,8 @@ model Expense {
   date        DateTime
   mois        String   // Format: YYYY-MM
   type        String   @default("expense") // expense or refund
+  isShared    Boolean? @default(false)
+  sharePercentage Decimal? @db.Decimal(5, 2)
   categorie   Category @relation(fields: [categorieId], references: [id])
   categorieId Int
   recurringExpense   RecurringExpense? @relation(fields: [recurringExpenseId], references: [id])

@@ -19,6 +19,8 @@ const createExpenseSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "La date doit être au format YYYY-MM-DD"),
   categorieId: z.number().int().positive(),
   type: z.enum(["expense", "refund"]).optional(),
+  isShared: z.boolean().optional(),
+  sharePercentage: z.number().min(0).max(100).optional(),
 });
 
 const updateExpenseSchema = z.object({
@@ -30,6 +32,8 @@ const updateExpenseSchema = z.object({
     .optional(),
   categorieId: z.number().int().positive().optional(),
   type: z.enum(["expense", "refund"]).optional(),
+  isShared: z.boolean().optional(),
+  sharePercentage: z.number().min(0).max(100).optional(),
 });
 
 export const addExpense = async (
@@ -43,6 +47,8 @@ export const addExpense = async (
       ...validatedData,
       date: new Date(validatedData.date),
       type: validatedData.type as "expense" | "refund" | undefined,
+      isShared: validatedData.isShared,
+      sharePercentage: validatedData.sharePercentage,
     });
     res.status(201).json(expense);
   } catch (error) {

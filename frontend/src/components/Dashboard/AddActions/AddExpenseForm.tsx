@@ -4,6 +4,7 @@ import { FaTimes } from "react-icons/fa";
 import { format } from "date-fns";
 import { useCreateExpense } from "../../../hooks/useExpenses";
 import { useDisabledCategories } from "../../../hooks/useBudget";
+import { Switch } from "../../ui/switch";
 
 interface AddExpenseFormProps {
   isOpen: boolean;
@@ -23,6 +24,8 @@ export default function AddExpenseForm({
   const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [categorieId, setCategorieId] = useState<string>("");
   const [type, setType] = useState<"expense" | "refund">("expense");
+  const [isShared, setIsShared] = useState<boolean>(false);
+  const [sharePercentage, setSharePercentage] = useState<string>("50");
 
   const disabledCategoryIds = useDisabledCategories(currentMonth);
   const mutation = useCreateExpense(currentMonth, "month");
@@ -43,6 +46,8 @@ export default function AddExpenseForm({
         date: date,
         categorieId: parseInt(categorieId),
         type: type,
+        isShared: isShared,
+        sharePercentage: isShared ? parseFloat(sharePercentage) : undefined,
       },
       {
         onSuccess: () => {
@@ -51,6 +56,8 @@ export default function AddExpenseForm({
           setDate(format(new Date(), "yyyy-MM-dd"));
           setCategorieId("");
           setType("expense");
+          setIsShared(false);
+          setSharePercentage("50");
           onClose();
         },
       },
@@ -190,6 +197,54 @@ export default function AddExpenseForm({
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Dépense partagée */}
+          <div className="space-y-4 border-t border-white/10 pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-xs font-medium text-linear-text-secondary uppercase tracking-wider mb-1">
+                  Dépense partagée
+                </label>
+                <p className="text-xs text-white/40">
+                  Partager cette dépense avec quelqu'un
+                </p>
+              </div>
+              <Switch checked={isShared} onCheckedChange={setIsShared} />
+            </div>
+
+            {isShared && (
+              <div>
+                <label
+                  htmlFor="sharePercentage"
+                  className="block text-xs font-medium text-linear-text-secondary uppercase tracking-wider mb-2"
+                >
+                  Votre part (%)
+                </label>
+                <input
+                  type="number"
+                  id="sharePercentage"
+                  className="bento-input w-full"
+                  placeholder="50"
+                  value={sharePercentage}
+                  onChange={(e) => setSharePercentage(e.target.value)}
+                  min="0"
+                  max="100"
+                  step="1"
+                  required={isShared}
+                />
+                <p className="text-xs text-white/40 mt-1">
+                  Montant que vous payez :{" "}
+                  {montant && sharePercentage
+                    ? (
+                        (parseFloat(montant) * parseFloat(sharePercentage)) /
+                        100
+                      ).toFixed(2)
+                    : "0.00"}
+                  €
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="pt-4">
