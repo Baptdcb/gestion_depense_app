@@ -1,4 +1,4 @@
-import { type MonthlySummary } from "../../../types";
+import { type MonthlySummary, type Expense } from "../../../types";
 
 interface SummaryDisplayProps {
   summary: MonthlySummary[];
@@ -6,6 +6,8 @@ interface SummaryDisplayProps {
   total: number;
   onCategoryClick?: (categoryId: number) => void;
   selectedCategoryId?: number | null;
+  showSharedOnly?: boolean;
+  expenses?: Expense[];
 }
 
 export default function SummaryDisplay({
@@ -14,6 +16,8 @@ export default function SummaryDisplay({
   total,
   onCategoryClick,
   selectedCategoryId,
+  showSharedOnly = false,
+  expenses = [],
 }: SummaryDisplayProps) {
   if (isLoading) {
     return <div className="text-center py-4">Chargement du résumé...</div>;
@@ -26,6 +30,22 @@ export default function SummaryDisplay({
       </div>
     );
   }
+
+  // Calculer le total ajusté en mode partagé (seulement ce que l'utilisateur paie)
+  const adjustedTotal = showSharedOnly
+    ? expenses.reduce((acc, expense) => {
+        const amount =
+          expense.type === "refund"
+            ? -Number(expense.montant)
+            : Number(expense.montant);
+        if (expense.isShared && expense.sharePercentage) {
+          // L'utilisateur paie sa part seulement
+          return acc + (amount * expense.sharePercentage) / 100;
+        }
+        // Pour les dépenses non partagées, on compte le montant complet
+        return acc + amount;
+      }, 0)
+    : total;
 
   // Trier les catégories par pourcentage décroissant
   const sortedSummary = [...summary].sort(
@@ -75,11 +95,23 @@ export default function SummaryDisplay({
       <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-end">
         <div>
           <p className="text-xs uppercase tracking-widest text-linear-text-secondary mb-1">
-            Dépense Totale
+            {showSharedOnly ? "Votre Part" : "Dépense Totale"}
           </p>
           <p className="text-4xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            {total.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
+            {adjustedTotal.toLocaleString("fr-FR", {
+              minimumFractionDigits: 2,
+            })}{" "}
+            €
           </p>
+          {showSharedOnly && (
+            <p className="text-xs text-blue-400 mt-2">
+              Part de l'autre :{" "}
+              {(total - adjustedTotal).toLocaleString("fr-FR", {
+                minimumFractionDigits: 2,
+              })}{" "}
+              €
+            </p>
+          )}
         </div>
       </div>
     </div>

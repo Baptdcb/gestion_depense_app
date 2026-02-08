@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,65 +8,69 @@ datasource db {
 }
 
 model Category {
-  id       Int      @id @default(autoincrement())
-  nom      String   @unique
-  icone    String
-  couleur  String   @default("#E2E8F0")
-  expenses Expense[]
-  categoryBudgets CategoryBudget[]
+  id                Int                @id @default(autoincrement())
+  nom               String             @unique
+  icone             String
+  couleur           String             @default("#E2E8F0")
+  categoryBudgets   CategoryBudget[]
+  expenses          Expense[]
   recurringExpenses RecurringExpense[]
 }
 
 model Expense {
-  id          Int      @id @default(autoincrement())
-  montant     Decimal  @db.Decimal(10, 2)
-  description String?
-  date        DateTime
-  mois        String   // Format: YYYY-MM
-  type        String   @default("expense") // expense or refund
-  isShared    Boolean? @default(false)
-  sharePercentage Decimal? @db.Decimal(5, 2)
-  categorie   Category @relation(fields: [categorieId], references: [id])
-  categorieId Int
-  recurringExpense   RecurringExpense? @relation(fields: [recurringExpenseId], references: [id])
+  id                 Int               @id @default(autoincrement())
+  montant            Decimal           @db.Decimal(10, 2)
+  description        String?
+  date               DateTime
+  mois               String
+  categorieId        Int
+  createdAt          DateTime          @default(now())
   recurringExpenseId Int?
-  createdAt   DateTime @default(now())
+  type               String            @default("expense")
+  isShared           Boolean?          @default(false)
+  sharePercentage    Decimal?          @db.Decimal(5, 2)
+  categorie          Category          @relation(fields: [categorieId], references: [id])
+  recurringExpense   RecurringExpense? @relation(fields: [recurringExpenseId], references: [id])
 
   @@index([mois])
   @@index([recurringExpenseId])
+  @@index([categorieId], map: "Expense_categorieId_fkey")
 }
 
 model RecurringExpense {
-  id          Int      @id @default(autoincrement())
-  montant     Decimal  @db.Decimal(10, 2)
+  id          Int       @id @default(autoincrement())
+  montant     Decimal   @db.Decimal(10, 2)
   description String?
-  categorie   Category @relation(fields: [categorieId], references: [id])
   categorieId Int
-  active      Boolean  @default(true)
-  startDate   DateTime @default(now())
-  createdAt   DateTime @default(now())
+  active      Boolean   @default(true)
+  startDate   DateTime  @default(now())
+  createdAt   DateTime  @default(now())
   expenses    Expense[]
+  categorie   Category  @relation(fields: [categorieId], references: [id])
+
+  @@index([categorieId], map: "RecurringExpense_categorieId_fkey")
 }
 
 model MonthlyBudget {
-  id          Int              @id @default(autoincrement())
-  month       String           @unique // YYYY-MM
-  globalLimit Decimal          @db.Decimal(10, 2)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id              Int              @id @default(autoincrement())
+  month           String           @unique
+  globalLimit     Decimal          @db.Decimal(10, 2)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   categoryBudgets CategoryBudget[]
 }
 
 model CategoryBudget {
   id              Int           @id @default(autoincrement())
   monthlyBudgetId Int
-  monthlyBudget   MonthlyBudget @relation(fields: [monthlyBudgetId], references: [id], onDelete: Cascade)
   categoryId      Int
-  category        Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   limit           Decimal       @db.Decimal(10, 2)
-  isDisabled      Boolean       @default(false) // true if category is disabled for this month
+  isDisabled      Boolean       @default(false)
+  category        Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  monthlyBudget   MonthlyBudget @relation(fields: [monthlyBudgetId], references: [id], onDelete: Cascade)
 
   @@unique([monthlyBudgetId, categoryId])
+  @@index([categoryId], map: "CategoryBudget_categoryId_fkey")
 }
 
 model Setting {

@@ -102,19 +102,6 @@ export default function HomePage({
     ? filteredExpenses?.filter((e) => e.isShared)
     : filteredExpenses;
 
-  // Calculate totals based on shared mode
-  const actualTotal = showSharedOnly
-    ? (displayedExpenses?.reduce((acc, e) => {
-        const amount =
-          e.type === "refund" ? -Number(e.montant) : Number(e.montant);
-        const sharedAmount =
-          e.isShared && e.sharePercentage
-            ? amount * (e.sharePercentage / 100)
-            : amount;
-        return acc + sharedAmount;
-      }, 0) ?? 0)
-    : total;
-
   const renderContent = () => {
     if (isLoadingExpenses) {
       return <div className="text-center p-8">Chargement des dépenses...</div>;
@@ -217,14 +204,32 @@ export default function HomePage({
         <div
           className={
             viewMode === "month"
-              ? "md:col-span-8 bento-card"
-              : "md:col-span-12 bento-card"
+              ? "md:col-span-8 bento-card  "
+              : "md:col-span-12 bento-card "
           }
         >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-medium text-white/90">
-              Répartition par catégorie
-            </h2>
+          <div className="flex items-center justify-between mb-6 ">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-medium text-white/90">
+                Répartition par catégorie
+              </h2>
+              <button
+                onClick={() => setShowSharedOnly(!showSharedOnly)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  showSharedOnly
+                    ? "bg-blue-500/20 border border-blue-500/40 text-blue-400"
+                    : "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
+                }`}
+                title={
+                  showSharedOnly
+                    ? "Afficher toutes les dépenses"
+                    : "Afficher uniquement les dépenses partagées"
+                }
+              >
+                <FaUsers size={12} />
+                {showSharedOnly ? "Partagé" : "Normal"}
+              </button>
+            </div>
             <div className="flex items-center gap-3 text-sm text-white/70">
               <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
                 {selectedCategoryId ? filteredExpenses?.length : expenseCount}{" "}
@@ -245,38 +250,22 @@ export default function HomePage({
             total={total}
             onCategoryClick={handleCategoryClick}
             selectedCategoryId={selectedCategoryId}
+            showSharedOnly={showSharedOnly}
+            expenses={expenses || []}
           />
         </div>
 
         {/* Expenses List Section - Main Content */}
         <div className="md:col-span-8 bento-card min-h-100">
           <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-medium text-white/90">
-                Transactions{" "}
-                <span className="text-sm text-linear-text-secondary ml-2">
-                  {viewMode === "month"
-                    ? format(selectedMonth, "MMMM yyyy", { locale: fr })
-                    : selectedYear}
-                </span>
-              </h2>
-              <button
-                onClick={() => setShowSharedOnly(!showSharedOnly)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  showSharedOnly
-                    ? "bg-blue-500/20 border border-blue-500/40 text-blue-400"
-                    : "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
-                }`}
-                title={
-                  showSharedOnly
-                    ? "Afficher toutes les dépenses"
-                    : "Afficher uniquement les dépenses partagées"
-                }
-              >
-                <FaUsers size={12} />
-                {showSharedOnly ? "Mode partagé" : "Tout"}
-              </button>
-            </div>
+            <h2 className="text-lg font-medium text-white/90">
+              Transactions{" "}
+              <span className="text-sm text-linear-text-secondary ml-2">
+                {viewMode === "month"
+                  ? format(selectedMonth, "MMMM yyyy", { locale: fr })
+                  : selectedYear}
+              </span>
+            </h2>
             {selectedCategoryId && (
               <button
                 onClick={() => setSelectedCategoryId(null)}
@@ -359,24 +348,6 @@ export default function HomePage({
                 Gérer les catégories
               </button>
             </div>
-          </div>
-
-          <div className="bento-card grow bg-linear-to-br from-linear-surface to-linear-accent/5">
-            <h2 className="text-sm font-medium text-linear-text-secondary tracking-wider mb-2">
-              {showSharedOnly ? "Montant réel payé" : "Total des dépenses"}
-            </h2>
-            <p className="text-3xl font-bold text-white mb-2">
-              {actualTotal.toLocaleString("fr-FR", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}{" "}
-              €
-            </p>
-            {showSharedOnly && (
-              <p className="text-xs text-blue-400 mt-1">
-                Mode dépenses partagées actif
-              </p>
-            )}
           </div>
 
           <div className="bento-card grow bg-linear-to-br from-linear-surface to-linear-accent/5">
