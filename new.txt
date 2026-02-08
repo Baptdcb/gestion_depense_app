@@ -1,5 +1,0 @@
-- Gerer les depenses partagée 
-    - avec une interface partagée (qui enleve ma part) et une individuelle (total)
-
-- importer un relever de compte bancaire ? / Automatiser les depenses 
-- Cree une partie investissement .  
